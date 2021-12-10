@@ -1,0 +1,12 @@
+COMMENT
+Hellow WQQ
+ENDCOMMENT
+
+INT x
+PRINT("Enter number: ")
+INPUT x AS INT 
+PRINT(x)
+
+COMMENT
+Hellow WQQ
+ENDCOMMENT
