@@ -85,14 +85,23 @@ enum constants
 {
   HEX_CONSTANT=400,
   DEC_CONSTANT,
+  INT_CONSTANT,
   REAL_CONSTANT,
-  STRING_CONSTANT,
+  STR_CONSTANT,
   CHAR_CONSTANT,
+  WS,
 };
 
 enum IDENTIFIER
 {
-  IDENTIFIER=500
+  IDENTIFIER=500,
+  INVALID
+};
+
+enum PROGRAM {
+  Program=600,
+  Line,
+  ENDLINE,
 };
 
 #endif

@@ -2,13 +2,13 @@
 
 %{
 
-  #include "./structs/hash/symboltable.h"
-  #include "./token/tokentype.h"
+  // #include "./structs/hash/symboltable.h"
+  #include "./structs/parse/parsetree.h"
   #include <stdlib.h>
   #include <stdio.h>
 
-  entry_t** symbol_table;
-  entry_t** constant_table;
+  t_list* symbol_table;
+  t_list* constant_table;
   int cmnt_strt = 0;
 
 %}
@@ -29,59 +29,60 @@ IS			(u|U|l|letter)*
 %%
   /* Keywords Dictionary */
 CHAR |
-CHARACTER                       {insert(symbol_table,yytext,"DATATYPE",CHAR, yylineno);}
-STRING                          {insert(symbol_table,yytext,"DATATYPE",STRING, yylineno);}
+CHARACTER                       {insert(&symbol_table,yytext,"DATATYPE",CHAR, yylineno);}
+STRING                          {insert(&symbol_table,yytext,"DATATYPE",STRING, yylineno);}
 INT |
-INTEGER                         {insert(symbol_table,yytext,"DATATYPE",INT, yylineno);}
+INTEGER                         {insert(&symbol_table,yytext,"DATATYPE",INT, yylineno);}
 REAL |
-"REAL NUMBER"                   {insert(symbol_table,yytext,"DATATYPE",REAL, yylineno);}
+"REAL NUMBER"                   {insert(&symbol_table,yytext,"DATATYPE",REAL, yylineno);}
 BOOL |
-BOOLEAN                         {insert(symbol_table,yytext,"DATATYPE",BOOL,yylineno);}
-PRINT                           {insert(symbol_table,yytext,"IOKEYWORD",PRINT,yylineno);}
-INPUT                           {insert(symbol_table,yytext,"IOKEYWORD",INPUT,yylineno);}
-LOGICAL_AND                     {insert(symbol_table,yytext,"LOGDKEYWORD",LOGICAL_AND,yylineno);}
-LOGICAL_OR                      {insert(symbol_table,yytext,"LOGKEYWORD",LOGICAL_OR,yylineno);}
-LOGICAL_NOT                     {insert(symbol_table,yytext,"LOGKEYWORD",LOGICAL_NOT,yylineno);}
-IF                              {insert(symbol_table,yytext,"CONDKEYWORD",IF,yylineno);}
-THEN                            {insert(symbol_table,yytext,"CONDKEYWORD",THEN,yylineno);}
-ELSEIF                          {insert(symbol_table,yytext,"CONDKEYWORD",ELSEIF,yylineno);}
-ELSE                            {insert(symbol_table,yytext,"CONDKEYWORD",ELSE,yylineno);}
-ENDIF                           {insert(symbol_table,yytext,"CONDKEYWORD",ENDIF,yylineno);}
-SWITCH                          {insert(symbol_table,yytext,"CONDKEYWORD",SWITCH,yylineno);}
-CASE                            {insert(symbol_table,yytext,"CONDKEYWORD",CASE,yylineno);}
-ENDSWITCH                       {insert(symbol_table,yytext,"CONDKEYWORD",ENDSWITCH,yylineno);}
-DEFAULT                         {insert(symbol_table,yytext,"CONDKEYWORD",DEFAULT,yylineno);}
-FOR                             {insert(symbol_table,yytext,"LOOPKEYWORD",FOR,yylineno);}
-WHILE                           {insert(symbol_table,yytext,"LOOPKEYWORD",WHILE,yylineno);}
-DO                              {insert(symbol_table,yytext,"LOOPKEYWORD",DO,yylineno);}
-ENDLOOP                         {insert(symbol_table,yytext,"LOOPKEYWORD",ENDLOOP,yylineno);}
-BREAK                           {insert(symbol_table,yytext,"JUMPKEYWORD",BREAK,yylineno);}
-CONTINUE                        {insert(symbol_table,yytext,"JUMPKEYWORD",CONTINUE,yylineno);}
-TRUE                            {insert(symbol_table,yytext,"BOOLKEYWORD",TRUE,yylineno);}
-FALSE                           {insert(symbol_table,yytext,"BOOLKEYWORD",FALSE,yylineno);}
-TO                              {insert(symbol_table,yytext,"LOOPKEYWORD",TO,yylineno);}
-AS                              {insert(symbol_table,yytext,"IOKEYWORD",AS,yylineno);}
+BOOLEAN                         {insert(&symbol_table,yytext,"DATATYPE",BOOL,yylineno);}
+PRINT                           {insert(&symbol_table,yytext,"IOKEYWORD",PRINT,yylineno);}
+INPUT                           {insert(&symbol_table,yytext,"IOKEYWORD",INPUT,yylineno);}
+LOGICAL_AND                     {insert(&symbol_table,yytext,"LOGDKEYWORD",LOGICAL_AND,yylineno);}
+LOGICAL_OR                      {insert(&symbol_table,yytext,"LOGKEYWORD",LOGICAL_OR,yylineno);}
+LOGICAL_NOT                     {insert(&symbol_table,yytext,"LOGKEYWORD",LOGICAL_NOT,yylineno);}
+IF                              {insert(&symbol_table,yytext,"CONDKEYWORD",IF,yylineno);}
+THEN                            {insert(&symbol_table,yytext,"CONDKEYWORD",THEN,yylineno);}
+ELSEIF                          {insert(&symbol_table,yytext,"CONDKEYWORD",ELSEIF,yylineno);}
+ELSE                            {insert(&symbol_table,yytext,"CONDKEYWORD",ELSE,yylineno);}
+ENDIF                           {insert(&symbol_table,yytext,"CONDKEYWORD",ENDIF,yylineno);}
+SWITCH                          {insert(&symbol_table,yytext,"CONDKEYWORD",SWITCH,yylineno);}
+CASE                            {insert(&symbol_table,yytext,"CONDKEYWORD",CASE,yylineno);}
+ENDSWITCH                       {insert(&symbol_table,yytext,"CONDKEYWORD",ENDSWITCH,yylineno);}
+DEFAULT                         {insert(&symbol_table,yytext,"CONDKEYWORD",DEFAULT,yylineno);}
+FOR                             {insert(&symbol_table,yytext,"LOOPKEYWORD",FOR,yylineno);}
+WHILE                           {insert(&symbol_table,yytext,"LOOPKEYWORD",WHILE,yylineno);}
+DO                              {insert(&symbol_table,yytext,"LOOPKEYWORD",DO,yylineno);}
+ENDLOOP                         {insert(&symbol_table,yytext,"LOOPKEYWORD",ENDLOOP,yylineno);}
+BREAK                           {insert(&symbol_table,yytext,"JUMPKEYWORD",BREAK,yylineno);}
+CONTINUE                        {insert(&symbol_table,yytext,"JUMPKEYWORD",CONTINUE,yylineno);}
+TRUE                            {insert(&symbol_table,yytext,"BOOLKEYWORD",TRUE,yylineno);}
+FALSE                           {insert(&symbol_table,yytext,"BOOLKEYWORD",FALSE,yylineno);}
+TO                              {insert(&symbol_table,yytext,"LOOPKEYWORD",TO,yylineno);}
+AS                              {insert(&symbol_table,yytext,"IOKEYWORD",AS,yylineno);}
 
   /* Comment Section */
 COMMENT                          {cmnt_strt = yylineno; BEGIN CMNT;}
 <CMNT>.|{ws}                      ;
 <CMNT>\n                          {yylineno++;}
 <CMNT>ENDCOMMENT                {BEGIN INITIAL;}
-<CMNT>COMMENT                   {printf("Line %3d: Nested comments are not valid!\n",yylineno);}
-<CMNT><<EOF>>                     {printf("Line %3d: Unterminated comment\n", cmnt_strt); yyterminate();}
+<CMNT>COMMENT                   {insert(&symbol_table,yytext,"INVALID",INVALID,yylineno);}
+<CMNT><<EOF>>                     {insert(&symbol_table,yytext,"INVALID",INVALID,yylineno);}
 
   /* Identfier section */
-{identifier}                      {insert(symbol_table,yytext,"IDENTIFIER",IDENTIFIER,yylineno);}
-{ws}                              ;
-{digit}+({letter}|_)+	            {printf("Line %3d: Illegal identifier name %s ",yylineno,yytext);}
+{identifier}                      {insert(&symbol_table,yytext,"IDENTIFIER",IDENTIFIER,yylineno);}
+{ws}                              {insert(&symbol_table,yytext,"WS",WS,yylineno);};
+{digit}+({letter}|_)+	            {insert(&symbol_table,yytext,"INVALID",INVALID,yylineno);}
 
-0[xX]{hex}+{IS}?			            {insert(symbol_table,yytext,"CONSTANT",HEX_CONSTANT,yylineno);}
-0{digit}+{IS}?				            {insert(symbol_table,yytext,"CONSTANT",DEC_CONSTANT,yylineno);}
-{hex}+{IS}?				                {insert(symbol_table,yytext,"CONSTANT",HEX_CONSTANT,yylineno);}
-{letter}?'(\\.|[^\\'])+'		      {insert(symbol_table,yytext,"CONSTANT",CHAR_CONSTANT,yylineno);}
-{digit}+{E}{FS}?			            {insert(symbol_table,yytext,"CONSTANT",REAL_CONSTANT,yylineno);}
-{digit}*"."{digit}+({E})?{FS}?		{insert(symbol_table,yytext,"CONSTANT",REAL_CONSTANT,yylineno);}
-{digit}+"."{digit}*({E})?{FS}?		{insert(symbol_table,yytext,"CONSTANT",REAL_CONSTANT,yylineno);}
+0[xX]{hex}+{IS}?			            {insert(&symbol_table,yytext,"HEX_CONSTANT",HEX_CONSTANT,yylineno);}
+0{digit}+{IS}?				            {insert(&symbol_table,yytext,"DEC_CONSTANT",DEC_CONSTANT,yylineno);}
+{hex}+{IS}?				                {insert(&symbol_table,yytext,"HEX_CONSTANT",HEX_CONSTANT,yylineno);}
+{letter}?'(\\.|[^\\'])+'		      {insert(&symbol_table,yytext,"CHAR_CONSTANT",CHAR_CONSTANT,yylineno);}
+{digit}+{E}{FS}?			            {insert(&symbol_table,yytext,"REAL_CONSTANT",REAL_CONSTANT,yylineno);}
+{digit}*"."{digit}+({E})?{FS}?		{insert(&symbol_table,yytext,"REAL_CONSTANT",REAL_CONSTANT,yylineno);}
+{digit}+"."{digit}*({E})?{FS}?		{insert(&symbol_table,yytext,"REAL_CONSTANT",REAL_CONSTANT,yylineno);}
+{digit}                           {insert(&symbol_table,yytext,"INT_CONSTANT",INT_CONSTANT,yylineno);}
 
   /* Quotations Section */
 \"[^\"\n]*\"     {
@@ -92,31 +93,31 @@ if(yytext[yyleng-2]=='\\')        /* check if it was an escaped quote */
   yymore();
 }
 else 
-insert( constant_table,yytext,"CONSTANT",STRING,yylineno);
+insert(&symbol_table,yytext,"STR_CONSTANT",STR_CONSTANT,yylineno);
 }
 
-\"[^\"\n]*$                       {printf("Line %3d: Unterminated string %s\n",yylineno,yytext);}
-\n                                {yylineno++;}
+\"[^\"\n]*$                       {insert(&symbol_table,yytext,"INVALID",INVALID ,yylineno);}
+\n                                {insert(&symbol_table,yytext,"ENDLINE",ENDLINE,yylineno); yylineno++;}
 
   /* Operators Dictionary */
-"--"                              {insert(symbol_table,yytext,"DATATYPE",DECREMENT,yylineno);}
-"++"                              {insert(symbol_table,yytext,"DATATYPE",INCREMENT,yylineno);}
-"<="                              {insert(symbol_table,yytext,"DATATYPE",LS_THAN_EQ,yylineno);}
-">="                              {insert(symbol_table,yytext,"DATATYPE",GR_THAN_EQ,yylineno);}
-"=="                              {insert(symbol_table,yytext,"DATATYPE",EQ,yylineno);}
-"!="                              {insert(symbol_table,yytext,"DATATYPE",DECREMENT,yylineno);}
-","			                          {insert(symbol_table,yytext,"DATATYPE",COMMA,yylineno);}
-"="			                          {insert(symbol_table,yytext,"DATATYPE",ASSIGN,yylineno);}
-"("			                          {insert(symbol_table,yytext,"DATATYPE",OPEN_PAR,yylineno);}
-")"			                          {insert(symbol_table,yytext,"DATATYPE",CLOSE_PAR,yylineno);}
-"-"			                          {insert(symbol_table,yytext,"DATATYPE",MINUS,yylineno);}
-"+"			                          {insert(symbol_table,yytext,"DATATYPE",PLUS,yylineno);}
-"*"			                          {insert(symbol_table,yytext,"DATATYPE",MUL,yylineno);}
-"/"		                            {insert(symbol_table,yytext,"DATATYPE",DIV,yylineno);}
-"%"			                          {insert(symbol_table,yytext,"DATATYPE",MODULO,yylineno);}
-"<"			                          {insert(symbol_table,yytext,"DATATYPE",LS_THAN,yylineno);}
-">"			                          {insert(symbol_table,yytext,"DATATYPE",GR_THAN,yylineno);}
-.                                 {printf("Line %3d: Illegal character %s ",yylineno,yytext);}
+"--"                              {insert(&symbol_table,yytext,"DECREMENT",DECREMENT,yylineno);}
+"++"                              {insert(&symbol_table,yytext,"INCREMENT",INCREMENT,yylineno);}
+"<="                              {insert(&symbol_table,yytext,"LS_THAN_EQ",LS_THAN_EQ,yylineno);}
+">="                              {insert(&symbol_table,yytext,"GR_THAN_EQ",GR_THAN_EQ,yylineno);}
+"=="                              {insert(&symbol_table,yytext,"EQ",EQ,yylineno);}
+"!="                              {insert(&symbol_table,yytext,"DECREMENT",DECREMENT,yylineno);}
+","			                          {insert(&symbol_table,yytext,"COMMA",COMMA,yylineno);}
+"="			                          {insert(&symbol_table,yytext,"ASSIGN",ASSIGN,yylineno);}
+"("			                          {insert(&symbol_table,yytext,"OPEN_PAR",OPEN_PAR,yylineno);}
+")"			                          {insert(&symbol_table,yytext,"CLOSE_PAR",CLOSE_PAR,yylineno);}
+"-"			                          {insert(&symbol_table,yytext,"MINUS",MINUS,yylineno);}
+"+"			                          {insert(&symbol_table,yytext,"PLUS",PLUS,yylineno);}
+"*"			                          {insert(&symbol_table,yytext,"MUL",MUL,yylineno);}
+"/"		                            {insert(&symbol_table,yytext,"DIV",DIV,yylineno);}
+"%"			                          {insert(&symbol_table,yytext,"MODULO",MODULO,yylineno);}
+"<"			                          {insert(&symbol_table,yytext,"LS_THAN",LS_THAN,yylineno);}
+">"			                          {insert(&symbol_table,yytext,"GR_THAN",GR_THAN,yylineno);}
+.                                 {insert(&symbol_table,yytext,"INVALID",INVALID,yylineno);}
 
 
 %%
