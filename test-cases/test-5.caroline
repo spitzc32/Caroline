@@ -3,7 +3,7 @@ Hellow WQQ
 ENDCOMMENT
 
 INT x
-PRINT("Enter number: ")
+1PRIN("Enter number: ")
 INPUT x AS INT 
 PRINT(x)
 
