@@ -91,7 +91,7 @@ void display(t_list* table_ptr)
    
 }
 
-/* Insert an entry into a hash table. */
+/* Insert an entry into a linked list. */
 void insert( t_list** table_ptr, char* lexeme, char*token_name, int token_type, int line)
 {
 	t_list* newentry = NULL;

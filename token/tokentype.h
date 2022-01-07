@@ -1,7 +1,7 @@
 /* 
 * Compiler Design Project 1 : Lexical Analyser
 *
-* File        : tokens.h
+* File        : tokentype.h
 * Description : This file defines tokens and the values associated to them.
 *                  
 */
@@ -89,6 +89,7 @@ enum constants
   REAL_CONSTANT,
   STR_CONSTANT,
   CHAR_CONSTANT,
+  NULL,
   WS,
 };
 
@@ -101,6 +102,7 @@ enum IDENTIFIER
 enum PROGRAM {
   Program=600,
   Line,
+  OBJECT,
   ENDLINE,
 };
 

@@ -72,7 +72,7 @@ COMMENT                          {cmnt_strt = yylineno; BEGIN CMNT;}
 
   /* Identfier section */
 {identifier}                      {insert(&symbol_table,yytext,"IDENTIFIER",IDENTIFIER,yylineno);}
-{ws}                              {insert(&symbol_table,yytext,"WS",WS,yylineno);};
+{ws}                              ;
 {digit}+({letter}|_)+	            {insert(&symbol_table,yytext,"INVALID",INVALID,yylineno);}
 
 0[xX]{hex}+{IS}?			            {insert(&symbol_table,yytext,"HEX_CONSTANT",HEX_CONSTANT,yylineno);}
@@ -105,7 +105,7 @@ insert(&symbol_table,yytext,"STR_CONSTANT",STR_CONSTANT,yylineno);
 "<="                              {insert(&symbol_table,yytext,"LS_THAN_EQ",LS_THAN_EQ,yylineno);}
 ">="                              {insert(&symbol_table,yytext,"GR_THAN_EQ",GR_THAN_EQ,yylineno);}
 "=="                              {insert(&symbol_table,yytext,"EQ",EQ,yylineno);}
-"!="                              {insert(&symbol_table,yytext,"DECREMENT",DECREMENT,yylineno);}
+"!="                              {insert(&symbol_table,yytext,"NOT_EQ",NOT_EQ,yylineno);}
 ","			                          {insert(&symbol_table,yytext,"COMMA",COMMA,yylineno);}
 "="			                          {insert(&symbol_table,yytext,"ASSIGN",ASSIGN,yylineno);}
 "("			                          {insert(&symbol_table,yytext,"OPEN_PAR",OPEN_PAR,yylineno);}
