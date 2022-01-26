@@ -2,14 +2,14 @@
 * File        : token_validator.h
 * Description : This file contains functions related to validate tokens. 
 *               The functions implemented are:
-*               tok_validator(), is_<token>(), is_datatype(), is_var_binding()
+*               tok_validator(), is_<token>(), match_<operation>(), is_var_binding()
 */
 
 #include "./parsetree.h"
 
-
+//MATCHER FUNTIONS:
 /* Validate if belonging to category of Datatypes */
-int is_datatype(int toktype) {
+int match_datatype(int toktype) {
     return 
     toktype == CHAR ||
     toktype == STRING ||
@@ -37,8 +37,18 @@ int match_logical_type (enum TokenType type) {
             type == LOGICAL_OR);
 }
 
-/* Template function for Checking token succession types */
+/* match which arithmetic operator is used*/
+int match_arithmetic_type (enum TokenType type) {
+    return (type == PLUS ||
+            type == MINUS ||
+            type == MUL ||
+            type == DIV ||
+            type == MODULO);
+}
 
+
+// SINGLE TOKEN FUNCTIONS
+/* Template function for Checking token succession types */
 int tok_validator (t_list** tok, p_tree** tree, int type, char* lexeme) {
     
     // First Condition checking if tok is null
