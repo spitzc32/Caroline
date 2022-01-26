@@ -58,7 +58,7 @@ int is_program(t_list** head, p_tree** tree) {
     p_tree *current;
     p_tree *line, *endline;
 
-    if (( *tree = create_tree_entry("Program", Program) ) == NULL )
+    if (( *tree = create_tree_entry("PROG", PROG) ) == NULL )
         return MEMORY_ERROR;
 
     current = *tree;

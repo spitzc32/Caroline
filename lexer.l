@@ -3,7 +3,8 @@
 %{
 
   // #include "./structs/hash/symboltable.h"
-  #include "./structs/parse/parsetree.h"
+  // #include "./structs/parse/parsetree.h"
+  #include "./structs/parse/token_validator.h"
   #include <stdlib.h>
   #include <stdio.h>
 
@@ -37,11 +38,12 @@ REAL |
 "REAL NUMBER"                   {insert(&symbol_table,yytext,"DATATYPE",REAL, yylineno);}
 BOOL |
 BOOLEAN                         {insert(&symbol_table,yytext,"DATATYPE",BOOL,yylineno);}
+NULLABLE                        {insert(&symbol_table,yytext,"NULLABLE",NULLABLE,yylineno);}
 PRINT                           {insert(&symbol_table,yytext,"IOKEYWORD",PRINT,yylineno);}
 INPUT                           {insert(&symbol_table,yytext,"IOKEYWORD",INPUT,yylineno);}
-LOGICAL_AND                     {insert(&symbol_table,yytext,"LOGDKEYWORD",LOGICAL_AND,yylineno);}
-LOGICAL_OR                      {insert(&symbol_table,yytext,"LOGKEYWORD",LOGICAL_OR,yylineno);}
-LOGICAL_NOT                     {insert(&symbol_table,yytext,"LOGKEYWORD",LOGICAL_NOT,yylineno);}
+AND                             {insert(&symbol_table,yytext,"LOGDKEYWORD",LOGICAL_AND,yylineno);}
+OR                              {insert(&symbol_table,yytext,"LOGKEYWORD",LOGICAL_OR,yylineno);}
+NOT                             {insert(&symbol_table,yytext,"LOGKEYWORD",LOGICAL_NOT,yylineno);}
 IF                              {insert(&symbol_table,yytext,"CONDKEYWORD",IF,yylineno);}
 THEN                            {insert(&symbol_table,yytext,"CONDKEYWORD",THEN,yylineno);}
 ELSEIF                          {insert(&symbol_table,yytext,"CONDKEYWORD",ELSEIF,yylineno);}

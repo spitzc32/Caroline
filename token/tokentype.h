@@ -8,22 +8,15 @@
 #ifndef TOKENTYPE_H
 #define _TOKENTYPE_H
 
-enum data_type {
+enum TokenType {
   CHAR,
   STRING,  
   INT,
   REAL,
   BOOL,
-};
-
-enum logical_op {
   LOGICAL_AND=5,
   LOGICAL_OR,
   LOGICAL_NOT,
-};
-
-enum keywords
-{
   PRINT=8,
   INPUT,
   AS,
@@ -46,15 +39,8 @@ enum keywords
   ENDCOMMENT,
   BREAK,
   CONTINUE,
-};
-
-enum bool_keyword {
   TRUE=50,
   FALSE,
-};
-
-enum operators
-{
   ASSIGN=100,
   MINUS,
   PLUS,
@@ -69,41 +55,26 @@ enum operators
   GR_THAN_EQ,
   EQ,
   NOT_EQ,
-  DOT
-};
-
-enum special_symbols
-{
+  DOT,
   DELIMITER=300,
   COMMA,
   OPEN_PAR,
   CLOSE_PAR,
-  FW_SLASH
-};
-
-enum constants
-{
+  FW_SLASH,
   HEX_CONSTANT=400,
   DEC_CONSTANT,
   INT_CONSTANT,
   REAL_CONSTANT,
   STR_CONSTANT,
   CHAR_CONSTANT,
-  NULL,
+  NULLABLE,
   WS,
-};
-
-enum IDENTIFIER
-{
   IDENTIFIER=500,
-  INVALID
-};
-
-enum PROGRAM {
-  Program=600,
-  Line,
+  INVALID,
+  PROG=600,
+  LINE,
   OBJECT,
-  ENDLINE,
+  ENDLINE
 };
 
 #endif

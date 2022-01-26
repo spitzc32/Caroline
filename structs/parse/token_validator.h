@@ -6,7 +6,6 @@
 */
 
 #include "./parsetree.h"
-#include "../../token/tokenchar.h"
 
 
 /* Validate if belonging to category of Datatypes */
@@ -23,19 +22,32 @@ int is_negative(t_list* tok) {
     return tok->token_type == MINUS && 
     (tok->successor->token_type == REAL_CONSTANT ||
     tok->successor->token_type == INT_CONSTANT ||
-    tok->successor->token_type == DEC_CONSTANT) 
+    tok->successor->token_type == DEC_CONSTANT);
+}
+
+/* match which logical operator is used*/
+int match_logical_type (enum TokenType type) {
+    return (type == EQ ||
+            type == NOT_EQ ||
+            type == GR_THAN ||
+            type == GR_THAN_EQ ||
+            type == LS_THAN ||
+            type == LS_THAN_EQ ||
+            type == LOGICAL_AND ||
+            type == LOGICAL_OR);
 }
 
 /* Template function for Checking token succession types */
+
 int tok_validator (t_list** tok, p_tree** tree, int type, char* lexeme) {
     
-    /* First Condition checking if tok is null*/
+    // First Condition checking if tok is null
     if (*tok == NULL)
         return PARSING_ERROR;
     
-    struct TokenList* current = *tok;
+    t_list *current = *tok;
     
-    /* Condition checking syntax rules set to token*/
+    // Condition checking syntax rules set to token
     if (current->token_type != type) {
         printf("Expecting <%s>, Found <%s>\n", type2char(type), type2char(current->token_type));
         return PARSING_ERROR;
@@ -48,18 +60,17 @@ int tok_validator (t_list** tok, p_tree** tree, int type, char* lexeme) {
         }
     
     // As by definition above, tree is already allocated
-    (*tree)->token = tok->lexeme;
-    (*tree)->type = tok->type;
+    (*tree)->token = current->lexeme;
+    (*tree)->type = current->token_type;
     (*tree)->child = NULL;
     (*tree)->sibling = NULL;
     
-    *tok = current->next;
+    *tok = current->successor;
     
     return SUBTREE_OK;
 }
 
 
-/* Validation functions for Checking each token(Singular) for rule enforcement */
 int is_char(t_list** tok, p_tree** tree) {
     return tok_validator(tok, tree, CHAR, NULL);
 }
@@ -81,7 +92,7 @@ int is_bool(t_list** tok, p_tree** tree) {
 }
 
 int is_null(t_list** tok, p_tree** tree) {
-    return tok_validator(tok, tree, NULL, NULL);
+    return tok_validator(tok, tree, NULLABLE, NULL);
 }
 
 int is_and(t_list** tok, p_tree** tree) {
@@ -245,7 +256,7 @@ int is_dot(t_list** tok, p_tree** tree) {
 }
 
 int is_delimeter(t_list** tok, p_tree** tree) {
-    return tok_validator(tok, tree, DELIMETER, NULL);
+    return tok_validator(tok, tree, DELIMITER, NULL);
 }
 
 int is_comma(t_list** tok, p_tree** tree) {
@@ -373,6 +384,50 @@ int is_quoted_string(t_list** tok, p_tree** tree) {
     return status;
 }
 
+/* Function checker if it is under logical operator (is_CondOp)*/
+int is_logical_op (t_list** tok, p_tree** new) {
+    enum TokenType type;
+
+    type = (*tok)->token_type;
+    if (type == LOGICAL_AND)
+        return is_and(tok, new);
+    else if (type == LOGICAL_OR)
+        return is_or(tok, new);
+    else if (type == EQ)
+        return is_eq(tok, new);
+    else if (type == NOT_EQ)
+        return is_not_eq(tok, new);
+    else if (type == GR_THAN)
+        return is_gt_than(tok, new);
+    else if (type == GR_THAN_EQ)
+        return is_gt_than_eq(tok, new);
+    else if (type == LS_THAN)
+        return is_ls_than(tok, new);
+    else if (type == LS_THAN_EQ)
+        return is_ls_than_eq(tok, new);
+    else
+        return PARSING_ERROR;
+}
+
+/* Function Checker to check operators */
+int is_Operator (t_list** tok, p_tree** new) {
+    enum TokenType type;
+
+    type = (*tok)->token_type;
+    if (type == PLUS)
+        return is_plus(tok, new);
+    else if (type == MINUS)
+        return is_minus(tok, new);
+    else if (type == MUL)
+        return is_mul(tok, new);
+    else if (type == DIV)
+        return is_div(tok, new);
+    else if (type == MODULO)
+        return is_modulo(tok, new);
+    else
+        return is_logical_op(tok, new);
+}
+
 /* Function checker to check expressions with/out signs and the precedence of what number(pow)*/
 int is_number(t_list** tok, p_tree** tree) {
     // Primary condition if no tokens are found
@@ -453,7 +508,7 @@ int is_obj(t_list** tok, p_tree** tree) {
 
     if (curr->token_type == IDENTIFIER)
         status = is_identifier(tok, &subtree);
-    else if (curr->token_type == NULL)
+    else if (curr->token_type == NULLABLE)
         status = is_null(tok, &subtree);
     else if (curr->token_type == STR_CONSTANT)
         status = is_char_seq(tok, &subtree);
@@ -466,7 +521,7 @@ int is_obj(t_list** tok, p_tree** tree) {
         status = PARSING_ERROR;
 
     if (status == SUBTREE_OK)
-        (*new)->child = subtree;
+        (*tree)->child = subtree;
     else
         free_parse_tree(subtree);
     return status;

@@ -6,7 +6,7 @@
 */
 
 
-#include "../../token/tokentype.h"
+#include "../../token/tokenchar.h"
 #include "../hash/symboltable.h"
 
 struct parse_tree {
@@ -103,9 +103,9 @@ void free_parse_tree(p_tree* tree) {
     free(tree);
 
     if (sibling != NULL)
-        free_ParseTree(sibling);
+        free_parse_tree(sibling);
     if (child != NULL)
-        free_ParseTree(child);
+        free_parse_tree(child);
 }
 
 

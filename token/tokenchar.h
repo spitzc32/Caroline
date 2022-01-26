@@ -11,7 +11,7 @@ const char* type2char (enum TokenType t) {
         case INT: return "INT";
         case REAL: return "REAL";
         case BOOL: return "BOOL";
-        case NULL: return "NULL";
+        case NULLABLE: return "NULLABLE";
         case LOGICAL_AND: return "AND";
         case LOGICAL_OR: return "OR";
         case LOGICAL_NOT: return "NOT";
@@ -66,8 +66,8 @@ const char* type2char (enum TokenType t) {
         case CHAR_CONSTANT: return "Character";
         case IDENTIFIER: return "IDENTIFIER";
         case INVALID: return "INVALID";
-        case Program: return "Program";
-        case Line: return "Line";
+        case PROG: return "PROG";
+        case LINE: return "LINE";
         case ENDLINE: return "ENDLINE";
         default: return "UNKNOWN";
     }
