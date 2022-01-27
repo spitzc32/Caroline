@@ -46,6 +46,12 @@ int match_arithmetic_type (enum TokenType type) {
             type == MODULO);
 }
 
+/* match which term operator is used */
+int match_term_type (enum TokenType type) {
+    return (type == MUL ||
+            type == DIV ||
+            type == MODULO);
+}
 
 // SINGLE TOKEN FUNCTIONS
 /* Template function for Checking token succession types */
@@ -314,7 +320,7 @@ int is_char_seq(t_list** tok, p_tree** tree) {
 }
 
 /* COPOUND TOKENS VALIDATION */
-// TODO: String Constant validated if has contents to print
+/* Function Checker if string has values to format */ 
 int is_quoted_string(t_list** tok, p_tree** tree) {
     // Primary condition if no tokens are found
     if (*tok == NULL)
@@ -394,6 +400,54 @@ int is_quoted_string(t_list** tok, p_tree** tree) {
     return status;
 }
 
+/* Function checker if string is concatenated*/
+int is_str_concat (t_list** tok, p_tree** tree) {
+    if (*tok == NULL)
+        return PARSING_ERROR;
+
+    p_tree *quotedstr, *plus, *last, *obj;
+    int status;
+
+    (*tree)->token = (char[1]){'\0'};
+    (*tree)->type = CONCAT;
+    status = SUBTREE_OK;
+
+    if ((quotedstr = create_tree()) == NULL)
+        return MEMORY_ERROR;
+
+    status = is_quoted_string(tok, &quotedstr);
+    if (status != SUBTREE_OK) {
+        free_parse_tree(quotedstr);
+        return status;
+    }
+    (*tree)->child = quotedstr;
+    last = quotedstr;
+
+    while((*tok)->token_type == PLUS) {
+        if ((plus = create_tree()) == NULL)
+            return MEMORY_ERROR;
+        status = is_plus(tok, &plus);
+        if (status != SUBTREE_OK) {
+            free_parse_tree(plus);
+            return status;
+        }
+        last->sibling = plus;
+        last = plus;
+
+        if ((obj = create_tree()) == NULL)
+            return MEMORY_ERROR;
+        status = is_obj(tok, &obj);
+        if (status != SUBTREE_OK) {
+            free_parse_tree(obj);
+            return status;
+        }
+        last->sibling = obj;
+        last = obj;
+        
+    }
+    return status;
+}
+
 /* Function checker if it is under logical operator (is_CondOp)*/
 int is_logical_op (t_list** tok, p_tree** new) {
     enum TokenType type;
@@ -419,8 +473,27 @@ int is_logical_op (t_list** tok, p_tree** new) {
         return PARSING_ERROR;
 }
 
+/* Function checker if it is under datatype */
+int is_datatype (t_list** tok, p_tree** new) {
+    enum TokenType type;
+
+    type = (*tok)->token_type;
+    if (type == CHAR)
+        return is_char(tok, new);
+    else if (type == STRING)
+        return is_string(tok, new);
+    else if (type == INT)
+        return is_int(tok, new);
+    else if (type == REAL)
+        return is_real(tok, new);
+    else if (type == BOOL)
+        return is_bool(tok, new);
+    else
+        return PARSING_ERROR;
+}
+
 /* Function Checker to check operators */
-int is_Operator (t_list** tok, p_tree** new) {
+int is_operator (t_list** tok, p_tree** new) {
     enum TokenType type;
 
     type = (*tok)->token_type;
@@ -508,8 +581,8 @@ int is_obj(t_list** tok, p_tree** tree) {
     (*tree)->token = "Object";
     (*tree)->type = OBJECT;
 
-    subtree = create_tree();
-    if (subtree == NULL)
+    
+    if ((subtree = create_tree()) == NULL)
         return MEMORY_ERROR;
 
     // use LL(1) FOLLOW Sets

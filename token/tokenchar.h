@@ -68,6 +68,14 @@ const char* type2char (enum TokenType t) {
         case INVALID: return "INVALID";
         case PROG: return "PROG";
         case LINE: return "LINE";
+        case OBJECT: return "OBJECT";
+        case BASE_EXP: return "BASE_EXP";
+        case TERM: return "TERM";
+        case PREDICATE: return  "PREDICATE";
+        case EXPR: return "EXPR";
+        case ASSIGN_CON: return "ASSIGN_CON";
+        case INPUT_CON: return "INPUT_CON";
+        case OUTPUT_CON: return "OUTPUT_CON";
         case ENDLINE: return "ENDLINE";
         default: return "UNKNOWN";
     }

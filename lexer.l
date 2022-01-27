@@ -4,7 +4,7 @@
 
   // #include "./structs/hash/symboltable.h"
   // #include "./structs/parse/parsetree.h"
-  #include "./structs/parse/token_validator.h"
+  #include "./structs/parse/grammar_validator.h"
   #include <stdlib.h>
   #include <stdio.h>
 
@@ -40,7 +40,8 @@ BOOL |
 BOOLEAN                         {insert(&symbol_table,yytext,"DATATYPE",BOOL,yylineno);}
 NULLABLE                        {insert(&symbol_table,yytext,"NULLABLE",NULLABLE,yylineno);}
 PRINT                           {insert(&symbol_table,yytext,"IOKEYWORD",PRINT,yylineno);}
-INPUT                           {insert(&symbol_table,yytext,"IOKEYWORD",INPUT,yylineno);}
+INPUT |
+"INPUT IN"                          {insert(&symbol_table,yytext,"IOKEYWORD",INPUT,yylineno);}
 AND                             {insert(&symbol_table,yytext,"LOGDKEYWORD",LOGICAL_AND,yylineno);}
 OR                              {insert(&symbol_table,yytext,"LOGKEYWORD",LOGICAL_OR,yylineno);}
 NOT                             {insert(&symbol_table,yytext,"LOGKEYWORD",LOGICAL_NOT,yylineno);}
@@ -99,7 +100,7 @@ insert(&symbol_table,yytext,"STR_CONSTANT",STR_CONSTANT,yylineno);
 }
 
 \"[^\"\n]*$                       {insert(&symbol_table,yytext,"INVALID",INVALID ,yylineno);}
-\n                                {insert(&symbol_table,yytext,"ENDLINE",ENDLINE,yylineno); yylineno++;}
+\n                                {insert(&symbol_table,"\\n","ENDLINE",ENDLINE,yylineno); yylineno++;}
 
   /* Operators Dictionary */
 "--"                              {insert(&symbol_table,yytext,"DECREMENT",DECREMENT,yylineno);}

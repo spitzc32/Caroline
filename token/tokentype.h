@@ -39,6 +39,7 @@ enum TokenType {
   ENDCOMMENT,
   BREAK,
   CONTINUE,
+  CONCAT,
   TRUE=50,
   FALSE,
   ASSIGN=100,
@@ -74,6 +75,15 @@ enum TokenType {
   PROG=600,
   LINE,
   OBJECT,
+  BASE_EXP,
+  TERM,
+  PREDICATE,
+  EXPR,
+  ASSIGN_CON,
+  INPUT_CON,
+  OUTPUT_CON,
+  IF_CON,
+  SWITCH_CON,
   ENDLINE
 };
 
