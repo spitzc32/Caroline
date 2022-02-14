@@ -87,6 +87,7 @@ int tok_validator (t_list** tok, p_tree** tree, int type, char* lexeme) {
 }
 
 
+
 int is_char(t_list** tok, p_tree** tree) {
     return tok_validator(tok, tree, CHAR, NULL);
 }
@@ -319,7 +320,181 @@ int is_char_seq(t_list** tok, p_tree** tree) {
     return tok_validator(tok, tree, STR_CONSTANT, NULL);
 }
 
+
+
+
 /* COPOUND TOKENS VALIDATION */
+/* Function checker if it is under logical operator (is_CondOp)*/
+int is_logical_op (t_list** tok, p_tree** new) {
+    enum TokenType type;
+
+    type = (*tok)->token_type;
+    if (type == LOGICAL_AND)
+        return is_and(tok, new);
+    else if (type == LOGICAL_OR)
+        return is_or(tok, new);
+    else if (type == EQ)
+        return is_eq(tok, new);
+    else if (type == NOT_EQ)
+        return is_not_eq(tok, new);
+    else if (type == GR_THAN)
+        return is_gt_than(tok, new);
+    else if (type == GR_THAN_EQ)
+        return is_gt_than_eq(tok, new);
+    else if (type == LS_THAN)
+        return is_ls_than(tok, new);
+    else if (type == LS_THAN_EQ)
+        return is_ls_than_eq(tok, new);
+    else
+        return PARSING_ERROR;
+}
+
+/* Function checker if it is under datatype */
+int is_datatype (t_list** tok, p_tree** new) {
+    enum TokenType type;
+
+    type = (*tok)->token_type;
+    if (type == CHAR)
+        return is_char(tok, new);
+    else if (type == STRING)
+        return is_string(tok, new);
+    else if (type == INT)
+        return is_int(tok, new);
+    else if (type == REAL)
+        return is_real(tok, new);
+    else if (type == BOOL)
+        return is_bool(tok, new);
+    else
+        return PARSING_ERROR;
+}
+
+/* Function Checker to check operators */
+int is_operator (t_list** tok, p_tree** new) {
+    enum TokenType type;
+
+    type = (*tok)->token_type;
+    if (type == PLUS)
+        return is_plus(tok, new);
+    else if (type == MINUS)
+        return is_minus(tok, new);
+    else if (type == MUL)
+        return is_mul(tok, new);
+    else if (type == DIV)
+        return is_div(tok, new);
+    else if (type == MODULO)
+        return is_modulo(tok, new);
+    else
+        return is_logical_op(tok, new);
+}
+
+int is_var_binding(int type1, int type2) {
+    if (CHAR == type1 || type1 == STRING || type1 == INT || type1 == REAL || type1 == BOOL) {
+       return type2 == IDENTIFIER;
+    }
+    return 0;
+}
+
+
+/* Function checker to check expressions with/out signs and the precedence of what number(pow)*/
+int is_number(t_list** tok, p_tree** tree) {
+    // Primary condition if no tokens are found
+    if (*tok == NULL)
+        return PARSING_ERROR;
+
+    p_tree *sign, *numeric;
+    int status, has_sign;
+
+    (*tree)->token = "Number";
+    (*tree)->type = OBJECT;
+
+    status = SUBTREE_OK;
+    has_sign = 1;
+    
+    // Checking if expression has sign 
+    if ((sign = create_tree()) == NULL)
+        return PARSING_ERROR;
+    
+    if ((*tok)->token_type == PLUS)
+        status = is_plus(tok, &sign);
+    else if ((*tok)->token_type == MINUS)
+        status = is_minus(tok, &sign);
+    else
+        has_sign = 0;
+
+    if (status != SUBTREE_OK) {
+        free_parse_tree(sign);
+        return status;
+    }
+    if (has_sign)
+        (*tree)->child = sign;
+    else
+        free_parse_tree(sign);
+
+    // Checking if expression type it has containing it 
+    if ((numeric = create_tree()) == NULL)
+        return MEMORY_ERROR;
+
+    if ((*tok)->token_type == INT_CONSTANT)
+        status = is_int_const(tok, &numeric);
+    else if ((*tok)->token_type == REAL_CONSTANT)
+        status = is_real_const(tok, &numeric);
+    else if ((*tok)->token_type == DEC_CONSTANT)
+        status = is_dec_const(tok, &numeric);
+    
+    if (status != SUBTREE_OK)
+        free_parse_tree(numeric);
+    else {
+        if (has_sign)
+            sign->sibling = numeric;
+        else
+            (*tree)->child = numeric;
+    }
+    return status;
+}
+
+
+/* Determine which obj is involved with an expression */
+int is_obj(t_list** tok, p_tree** tree) {
+    // Primary condition if no tokens are found
+    if (*tok == NULL)
+        return PARSING_ERROR;
+    
+    p_tree* subtree;
+    int status;
+
+   
+    (*tree)->token = "Object";
+    (*tree)->type = OBJECT;
+
+    
+    if ((subtree = create_tree()) == NULL)
+        return MEMORY_ERROR;
+
+    // use LL(1) FOLLOW Sets
+    t_list* curr;
+    curr = *tok;
+
+    if (curr->token_type == IDENTIFIER)
+        status = is_identifier(tok, &subtree);
+    else if (curr->token_type == NULLABLE)
+        status = is_null(tok, &subtree);
+    else if (curr->token_type == STR_CONSTANT)
+        status = is_char_seq(tok, &subtree);
+    else if (curr->token_type == BOOL)
+        status = is_bool(tok, &subtree);
+    else if (curr->token_type == INT_CONSTANT ||
+             curr->token_type == REAL_CONSTANT)
+        status = is_number(tok, &subtree);
+    else
+        status = PARSING_ERROR;
+
+    if (status == SUBTREE_OK)
+        (*tree)->child = subtree;
+    else
+        free_parse_tree(subtree);
+    return status;
+}
+
 /* Function Checker if string has values to format */ 
 int is_quoted_string(t_list** tok, p_tree** tree) {
     // Primary condition if no tokens are found
@@ -448,164 +623,5 @@ int is_str_concat (t_list** tok, p_tree** tree) {
     return status;
 }
 
-/* Function checker if it is under logical operator (is_CondOp)*/
-int is_logical_op (t_list** tok, p_tree** new) {
-    enum TokenType type;
 
-    type = (*tok)->token_type;
-    if (type == LOGICAL_AND)
-        return is_and(tok, new);
-    else if (type == LOGICAL_OR)
-        return is_or(tok, new);
-    else if (type == EQ)
-        return is_eq(tok, new);
-    else if (type == NOT_EQ)
-        return is_not_eq(tok, new);
-    else if (type == GR_THAN)
-        return is_gt_than(tok, new);
-    else if (type == GR_THAN_EQ)
-        return is_gt_than_eq(tok, new);
-    else if (type == LS_THAN)
-        return is_ls_than(tok, new);
-    else if (type == LS_THAN_EQ)
-        return is_ls_than_eq(tok, new);
-    else
-        return PARSING_ERROR;
-}
 
-/* Function checker if it is under datatype */
-int is_datatype (t_list** tok, p_tree** new) {
-    enum TokenType type;
-
-    type = (*tok)->token_type;
-    if (type == CHAR)
-        return is_char(tok, new);
-    else if (type == STRING)
-        return is_string(tok, new);
-    else if (type == INT)
-        return is_int(tok, new);
-    else if (type == REAL)
-        return is_real(tok, new);
-    else if (type == BOOL)
-        return is_bool(tok, new);
-    else
-        return PARSING_ERROR;
-}
-
-/* Function Checker to check operators */
-int is_operator (t_list** tok, p_tree** new) {
-    enum TokenType type;
-
-    type = (*tok)->token_type;
-    if (type == PLUS)
-        return is_plus(tok, new);
-    else if (type == MINUS)
-        return is_minus(tok, new);
-    else if (type == MUL)
-        return is_mul(tok, new);
-    else if (type == DIV)
-        return is_div(tok, new);
-    else if (type == MODULO)
-        return is_modulo(tok, new);
-    else
-        return is_logical_op(tok, new);
-}
-
-/* Function checker to check expressions with/out signs and the precedence of what number(pow)*/
-int is_number(t_list** tok, p_tree** tree) {
-    // Primary condition if no tokens are found
-    if (*tok == NULL)
-        return PARSING_ERROR;
-
-    p_tree *sign, *numeric;
-    int status, has_sign;
-
-    (*tree)->token = "Number";
-    (*tree)->type = OBJECT;
-
-    status = SUBTREE_OK;
-    has_sign = 1;
-    
-    // Checking if expression has sign 
-    if ((sign = create_tree()) == NULL)
-        return PARSING_ERROR;
-    
-    if ((*tok)->token_type == PLUS)
-        status = is_plus(tok, &sign);
-    else if ((*tok)->token_type == MINUS)
-        status = is_minus(tok, &sign);
-    else
-        has_sign = 0;
-
-    if (status != SUBTREE_OK) {
-        free_parse_tree(sign);
-        return status;
-    }
-    if (has_sign)
-        (*tree)->child = sign;
-    else
-        free_parse_tree(sign);
-
-    // Checking if expression type it has containing it 
-    if ((numeric = create_tree()) == NULL)
-        return MEMORY_ERROR;
-
-    if ((*tok)->token_type == INT_CONSTANT)
-        status = is_int_const(tok, &numeric);
-    else if ((*tok)->token_type == REAL_CONSTANT)
-        status = is_real_const(tok, &numeric);
-    else if ((*tok)->token_type == DEC_CONSTANT)
-        status = is_dec_const(tok, &numeric);
-    
-    if (status != SUBTREE_OK)
-        free_parse_tree(numeric);
-    else {
-        if (has_sign)
-            sign->sibling = numeric;
-        else
-            (*tree)->child = numeric;
-    }
-    return status;
-}
-
-/* Determine which obj is involved with an expression */
-int is_obj(t_list** tok, p_tree** tree) {
-    // Primary condition if no tokens are found
-    if (*tok == NULL)
-        return PARSING_ERROR;
-    
-    p_tree* subtree;
-    int status;
-
-   
-    (*tree)->token = "Object";
-    (*tree)->type = OBJECT;
-
-    
-    if ((subtree = create_tree()) == NULL)
-        return MEMORY_ERROR;
-
-    // use LL(1) FOLLOW Sets
-    t_list* curr;
-    curr = *tok;
-
-    if (curr->token_type == IDENTIFIER)
-        status = is_identifier(tok, &subtree);
-    else if (curr->token_type == NULLABLE)
-        status = is_null(tok, &subtree);
-    else if (curr->token_type == STR_CONSTANT)
-        status = is_char_seq(tok, &subtree);
-    else if (curr->token_type == BOOL)
-        status = is_bool(tok, &subtree);
-    else if (curr->token_type == INT_CONSTANT ||
-             curr->token_type == REAL_CONSTANT)
-        status = is_number(tok, &subtree);
-    else
-        status = PARSING_ERROR;
-
-    if (status == SUBTREE_OK)
-        (*tree)->child = subtree;
-    else
-        free_parse_tree(subtree);
-    return status;
-}

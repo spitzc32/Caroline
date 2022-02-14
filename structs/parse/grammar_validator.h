@@ -370,16 +370,8 @@ int is_output_stmt(t_list** tok, p_tree** tree) {
     return status;
 }
 
-/*
-// Validate if the rule of variable binding is met. 
-int is_var_binding(int type1, int type2) {
-    if (is_datatype(type1)) {
-       return type2 == IDENTIFIER; 
-    }
-    return 0;
-}
 
-
+// Check which type of line should we check the grammar.
 int is_line(t_list** tok, p_tree** line) {
     
     p_tree* subtree;
@@ -388,25 +380,34 @@ int is_line(t_list** tok, p_tree** line) {
     t_list* curr;
 
     // Check if entry is created successfully 
-    if (( *line = create_tree_entry("Line", Line) ) == NULL )
+    if (( *line = create_tree_entry("Line", LINE) ) == NULL ) {
+        printf("line not created");
         return MEMORY_ERROR;
+    }
     
     curr = *tok;
 
-    if(is_var_binding(curr->token_type, curr->successor)) {
-        status = is_identifier(tok, &subtree)
+    if(is_var_binding(curr->token_type, curr->successor->token_type)) {
+        status = is_assignment_stmt(tok, &subtree);
     } else if(curr->token_type == INPUT) {
-        status = is_inputc(tok, &subtree);
+        status = is_input_stmt(tok, &subtree);
     } else if (curr->token_type == PRINT) {
-        status = is_output(tok, &subtree);
-    } else if (curr->token_type == IF || 
+        status = is_output_stmt(tok, &subtree);
+    } else if (curr->token_type == COMMENT || curr->token_type == ENDCOMMENT) {
+        subtree = create_tree_entry("COMMENT", COMMENT);
+        status = SUBTREE_OK;
+    } else if (curr->token_type == ENDLINE) {
+        subtree = create_tree_entry("ENDLINE", ENDLINE);
+        status = SUBTREE_OK;
+    }
+    /* else if (curr->token_type == IF || 
     curr->token_type == SWITCH) {
         status = is_cond(tok, &subtree);
     } else if (curr->token_type == WHILE || 
     curr->token_type == DO || 
     curr->token_type == FOR) {
         status = is_loop(tok, &subtree);
-    } else {
+    }*/ else {
         printf("SYNTAX ERROR: No grammar match rule.");
         status = PARSING_ERROR;
     }
@@ -415,15 +416,17 @@ int is_line(t_list** tok, p_tree** line) {
     return status;
 }
 
+
 int is_program(t_list** head, p_tree** tree) {
     t_list* tok;
     int status, child;
     p_tree *current;
     p_tree *line, *endline;
 
-    if (( *tree = create_tree_entry("PROG", PROG) ) == NULL )
+    if (( *tree = create_tree_entry("PROG", PROG) ) == NULL ) {
+        printf("program not created");
         return MEMORY_ERROR;
-
+    }
     current = *tree;
 
     //
@@ -456,4 +459,38 @@ int is_program(t_list** head, p_tree** tree) {
     }
     free_parse_tree(line);
 }
+
+
+int run_with_stat(t_list* head) {
+    p_tree* tree;
+    int status;
+
+    if(( tree = create_tree()) == NULL) {
+        return MEMORY_ERROR;
+    }
+
+    status = is_program(&head, &tree);
+    print_parse_tree(tree);
+
+    return status;
+
+
+}
+
+
+
+
+/*
+// Validate if the rule of variable binding is met. 
+int is_var_binding(int type1, int type2) {
+    if (is_datatype(type1)) {
+       return type2 == IDENTIFIER; 
+    }
+    return 0;
+}
+
+
+
+
+
 */

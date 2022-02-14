@@ -1,0 +1,8 @@
+INT x = 5
+INTEGER 1y, z
+
+
+PRINT("The value of x is, x)
+
+COMMENT
+THis is a comment

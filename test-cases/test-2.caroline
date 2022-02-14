@@ -1,0 +1,8 @@
+print("This is a number")
+INT x == 2.0
+
+IF (x < 5) THEN
+PRINT("The number is less than 5.")
+ENDIF
+
+INT y += x * (x / 3(x + 2))

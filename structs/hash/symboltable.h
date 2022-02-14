@@ -79,16 +79,19 @@ void display(t_list* table_ptr)
 	t_list* traverser;
 	FILE *writeParsed=fopen("parsedTable.txt","w");
     
-	fprintf(writeParsed,"\t\tlexeme\t\ttoken\t\ttype\n");
+	fprintf(writeParsed,"\t\tlexeme\t\ttoken-type\t\ttoken-name\n");
+	printf("\t\tlexeme\t\ttoken-type\t\ttoken-name\n");
 
 	traverser = table_ptr;
 
 	while( traverser != NULL)
 	{
 		fprintf(writeParsed,"%15s\t\t%3d\t\t%10s\n", traverser->lexeme, traverser->token_type, traverser->token_name);
+		printf("%15s\t\t%3d\t\t%10s\n", traverser->lexeme, traverser->token_type, traverser->token_name);
 		traverser = traverser->successor;
 	}
    
+	fclose(writeParsed);
 }
 
 /* Insert an entry into a linked list. */
@@ -115,6 +118,19 @@ void insert( t_list** table_ptr, char* lexeme, char*token_name, int token_type, 
 		temp = temp->successor;
 	temp->successor = newentry;
 	
+}
+
+
+int ends_with(const char* name, const char* extension, size_t length)
+{
+  const char* ldot = strrchr(name, '.');
+  if (ldot != NULL)
+  {
+    if (length == 0)
+      length = strlen(extension);
+    return strncmp(ldot + 1, extension, length) == 0;
+  }
+  return 0;
 }
 
 

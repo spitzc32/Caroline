@@ -66,21 +66,19 @@ TO                              {insert(&symbol_table,yytext,"LOOPKEYWORD",TO,yy
 AS                              {insert(&symbol_table,yytext,"IOKEYWORD",AS,yylineno);}
 
   /* Comment Section */
-COMMENT                          {cmnt_strt = yylineno; BEGIN CMNT;}
+COMMENT                          {cmnt_strt = yylineno; BEGIN CMNT; insert(&symbol_table,yytext,"COMMENT",COMMENT,yylineno);}
 <CMNT>.|{ws}                      ;
 <CMNT>\n                          {yylineno++;}
-<CMNT>ENDCOMMENT                {BEGIN INITIAL;}
+<CMNT>ENDCOMMENT                {BEGIN INITIAL; insert(&symbol_table,yytext,"ENDCOMMENT",ENDCOMMENT,yylineno);}
 <CMNT>COMMENT                   {insert(&symbol_table,yytext,"INVALID",INVALID,yylineno);}
-<CMNT><<EOF>>                     {insert(&symbol_table,yytext,"INVALID",INVALID,yylineno);}
+<CMNT><<EOF>>                     {insert(&symbol_table,yytext,"INVALID",INVALID,yylineno);BEGIN INITIAL;}
 
   /* Identfier section */
 {identifier}                      {insert(&symbol_table,yytext,"IDENTIFIER",IDENTIFIER,yylineno);}
 {ws}                              ;
 {digit}+({letter}|_)+	            {insert(&symbol_table,yytext,"INVALID",INVALID,yylineno);}
 
-0[xX]{hex}+{IS}?			            {insert(&symbol_table,yytext,"HEX_CONSTANT",HEX_CONSTANT,yylineno);}
-0{digit}+{IS}?				            {insert(&symbol_table,yytext,"DEC_CONSTANT",DEC_CONSTANT,yylineno);}
-{hex}+{IS}?				                {insert(&symbol_table,yytext,"HEX_CONSTANT",HEX_CONSTANT,yylineno);}
+
 {letter}?'(\\.|[^\\'])+'		      {insert(&symbol_table,yytext,"CHAR_CONSTANT",CHAR_CONSTANT,yylineno);}
 {digit}+{E}{FS}?			            {insert(&symbol_table,yytext,"REAL_CONSTANT",REAL_CONSTANT,yylineno);}
 {digit}*"."{digit}+({E})?{FS}?		{insert(&symbol_table,yytext,"REAL_CONSTANT",REAL_CONSTANT,yylineno);}
@@ -128,13 +126,23 @@ insert(&symbol_table,yytext,"STR_CONSTANT",STR_CONSTANT,yylineno);
 
 int main(int argc, char **argv)
 {
-  yyin=fopen("test-cases/test-5.caroline","r");
-  symbol_table=create_table();
-  constant_table=create_table();
-  yylex();
-  display(symbol_table);
+  char filename[200];
+  printf("Enter the path filename:");
+  scanf("%[^\n]s", filename);
+  printf("%s %d",filename, ends_with(filename, "caroline", 8));
+  
+  if(ends_with(filename, "caroline", 8)) {
+    yyin=fopen(filename,"r");
+    symbol_table=create_table();
+    constant_table=create_table();
+    yylex();
+    display(symbol_table);
 
-  return(0);
+    run_with_stat(symbol_table);
+  } else {
+    printf("Invalid extension. Please input files only with .caroline extension");
+  }
+  
 }
 int yywrap()
 {
