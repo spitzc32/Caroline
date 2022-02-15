@@ -7,6 +7,7 @@ As mentioned before, Caroline will be following the principles and conventions o
 Dependencies:
     - Flex and Bison
     - GCC Compiler
+
 Run the Following Steps:
 ```
 flex lexer.l // this will generate lex.yy.c
