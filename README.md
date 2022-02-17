@@ -5,8 +5,9 @@ As mentioned before, Caroline will be following the principles and conventions o
 
 ## How to Run Caroline Programming Language
 Dependencies:
-    - Flex and Bison
-    - GCC Compiler
+* Flex and Bison
+* GCC Compiler
+
 Run the Following Steps:
 ```
 flex lexer.l // this will generate lex.yy.c
