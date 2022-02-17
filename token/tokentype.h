@@ -79,6 +79,7 @@ enum TokenType {
   TERM,
   PREDICATE,
   EXPR,
+  STRING_CON,
   ASSIGN_CON,
   INPUT_CON,
   OUTPUT_CON,

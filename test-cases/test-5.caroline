@@ -2,8 +2,8 @@ COMMENT
 Hellow WQQ
 ENDCOMMENT
 
-INT x
-1PRIN("Enter number: ")
+INT x, y, z
+PRINT("Enter number: "
 INPUT x AS INT 
 PRINT(x)
 

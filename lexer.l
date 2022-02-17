@@ -9,7 +9,7 @@
   #include <stdio.h>
 
   t_list* symbol_table;
-  t_list* constant_table;
+  t_list* display_table;
   int cmnt_strt = 0;
 
 %}
@@ -18,7 +18,7 @@
 %x CMNT
 
 letter [a-zA-Z_]
-digit [0-9]
+digit [0-9]+
 ws  [ \t\r\f\v]+
 identifier [a-zA-Z][a-zA-Z0-9]*
 hex [a-fA-F0-9]
@@ -68,7 +68,7 @@ AS                              {insert(&symbol_table,yytext,"IOKEYWORD",AS,yyli
   /* Comment Section */
 COMMENT                          {cmnt_strt = yylineno; BEGIN CMNT; insert(&symbol_table,yytext,"COMMENT",COMMENT,yylineno);}
 <CMNT>.|{ws}                      ;
-<CMNT>\n                          {yylineno++;}
+<CMNT>\n                          {}
 <CMNT>ENDCOMMENT                {BEGIN INITIAL; insert(&symbol_table,yytext,"ENDCOMMENT",ENDCOMMENT,yylineno);}
 <CMNT>COMMENT                   {insert(&symbol_table,yytext,"INVALID",INVALID,yylineno);}
 <CMNT><<EOF>>                     {insert(&symbol_table,yytext,"INVALID",INVALID,yylineno);BEGIN INITIAL;}
@@ -98,7 +98,7 @@ insert(&symbol_table,yytext,"STR_CONSTANT",STR_CONSTANT,yylineno);
 }
 
 \"[^\"\n]*$                       {insert(&symbol_table,yytext,"INVALID",INVALID ,yylineno);}
-\n                                {insert(&symbol_table,"\\n","ENDLINE",ENDLINE,yylineno); yylineno++;}
+\n                                {insert(&symbol_table,yytext,"ENDLINE",ENDLINE ,yylineno); }
 
   /* Operators Dictionary */
 "--"                              {insert(&symbol_table,yytext,"DECREMENT",DECREMENT,yylineno);}
@@ -134,9 +134,9 @@ int main(int argc, char **argv)
   if(ends_with(filename, "caroline", 8)) {
     yyin=fopen(filename,"r");
     symbol_table=create_table();
-    constant_table=create_table();
     yylex();
-    display(symbol_table);
+    display_table=symbol_table;
+    display(display_table);
 
     run_with_stat(symbol_table);
   } else {

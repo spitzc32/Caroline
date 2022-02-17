@@ -1,8 +1,8 @@
-print("This is a number")
-INT x == 2.0
+PRINT("This is a number")
+INT x = ((2.0 + 33) * 32 - 23 + 6)
 
 IF (x < 5) THEN
-PRINT("The number is less than 5.")
+    PRINT("The number is less than 5.")
 ENDIF
 
 INT y += x * (x / 3(x + 2))

@@ -12,6 +12,7 @@
 struct parse_tree {
     char* token;
     int type;
+    int line;
     struct parse_tree* child;
     struct parse_tree* sibling;
 };
@@ -27,19 +28,15 @@ typedef struct parse_tree p_tree;
 
 /* Create a new ParseTree. */
 p_tree* create_tree(){
-    p_tree* tree;
     
-    /* Allocate space for tree */
-    if(( tree =(p_tree*) malloc( sizeof( p_tree ) ) ) == NULL ) {
-		free(tree);
-		return NULL;
-	}
+    p_tree* tree = NULL; // declare a pointer
+	
+	return tree;
 
-    return tree;
 }
 
 /* Create a Entry for a token. */
-p_tree* create_tree_entry(char* token, int type) {
+p_tree* create_tree_entry(char* token, int type, int line) {
     p_tree* entry;
 
     /* Allocate space for entry */
@@ -53,6 +50,7 @@ p_tree* create_tree_entry(char* token, int type) {
 	}
 	
 	entry->type = type;
+    entry->line = line;
 	entry->child = NULL;
     entry->sibling = NULL;
 
@@ -76,9 +74,9 @@ void print_PT(p_tree* tree, int indent) {
     
     // Handler for Line Tokens and Program tokens
     if (tree->type) {
-        printf("<%s, %d>", tree->token, tree->type);
+        printf("<%s, %d>\n", tree->token, tree->type);
     } else {
-        printf("<%s>", tree->token);
+        printf("<%s>\n", tree->token);
     }
 
     p_tree* sibling;

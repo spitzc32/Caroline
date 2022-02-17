@@ -25,6 +25,20 @@ int is_negative(t_list* tok) {
     tok->successor->token_type == DEC_CONSTANT);
 }
 
+int match_constants(enum TokenType type) {
+    return (
+        type == REAL_CONSTANT ||
+        type == INT_CONSTANT ||
+        type == DEC_CONSTANT ||
+        type == STR_CONSTANT ||
+        type == TRUE || type == FALSE
+    );
+}
+
+int match_identifier(enum TokenType type) {
+    return type == IDENTIFIER;
+}
+
 /* match which logical operator is used*/
 int match_logical_type (enum TokenType type) {
     return (type == EQ ||
@@ -36,6 +50,8 @@ int match_logical_type (enum TokenType type) {
             type == LOGICAL_AND ||
             type == LOGICAL_OR);
 }
+
+
 
 /* match which arithmetic operator is used*/
 int match_arithmetic_type (enum TokenType type) {
@@ -64,8 +80,9 @@ int tok_validator (t_list** tok, p_tree** tree, int type, char* lexeme) {
     t_list *current = *tok;
     
     // Condition checking syntax rules set to token
+    printf("Sa Validator: %d, %d\n", current->token_type, type);
     if (current->token_type != type) {
-        printf("Expecting <%s>, Found <%s>\n", type2char(type), type2char(current->token_type));
+        printf("PARSER ERROR: In line %d. Expecting <%s>, Found <%s>\n", current->line, type2char(type), type2char(current->token_type));
         return PARSING_ERROR;
     }
 
@@ -75,12 +92,7 @@ int tok_validator (t_list** tok, p_tree** tree, int type, char* lexeme) {
             return PARSING_ERROR;
         }
     
-    // As by definition above, tree is already allocated
-    (*tree)->token = current->lexeme;
-    (*tree)->type = current->token_type;
-    (*tree)->child = NULL;
-    (*tree)->sibling = NULL;
-    
+    *tree = create_tree_entry(current->lexeme, current->token_type, current->line);
     *tok = current->successor;
     
     return SUBTREE_OK;
@@ -309,7 +321,7 @@ int is_char_const(t_list** tok, p_tree** tree) {
 }
 
 int is_identifier(t_list** tok, p_tree** tree) {
-    return tok_validator(tok, tree, CHAR, NULL);
+    return tok_validator(tok, tree, IDENTIFIER, NULL);
 }
 
 int is_endline(t_list** tok, p_tree** tree) {
@@ -325,66 +337,66 @@ int is_char_seq(t_list** tok, p_tree** tree) {
 
 /* COPOUND TOKENS VALIDATION */
 /* Function checker if it is under logical operator (is_CondOp)*/
-int is_logical_op (t_list** tok, p_tree** new) {
+int is_logical_op (t_list** tok, p_tree** tree) {
     enum TokenType type;
 
     type = (*tok)->token_type;
     if (type == LOGICAL_AND)
-        return is_and(tok, new);
+        return is_and(tok, tree);
     else if (type == LOGICAL_OR)
-        return is_or(tok, new);
+        return is_or(tok, tree);
     else if (type == EQ)
-        return is_eq(tok, new);
+        return is_eq(tok, tree);
     else if (type == NOT_EQ)
-        return is_not_eq(tok, new);
+        return is_not_eq(tok, tree);
     else if (type == GR_THAN)
-        return is_gt_than(tok, new);
+        return is_gt_than(tok, tree);
     else if (type == GR_THAN_EQ)
-        return is_gt_than_eq(tok, new);
+        return is_gt_than_eq(tok, tree);
     else if (type == LS_THAN)
-        return is_ls_than(tok, new);
+        return is_ls_than(tok, tree);
     else if (type == LS_THAN_EQ)
-        return is_ls_than_eq(tok, new);
+        return is_ls_than_eq(tok, tree);
     else
         return PARSING_ERROR;
 }
 
 /* Function checker if it is under datatype */
-int is_datatype (t_list** tok, p_tree** new) {
+int is_datatype (t_list** tok, p_tree** tree) {
     enum TokenType type;
 
     type = (*tok)->token_type;
     if (type == CHAR)
-        return is_char(tok, new);
+        return is_char(tok, tree);
     else if (type == STRING)
-        return is_string(tok, new);
+        return is_string(tok, tree);
     else if (type == INT)
-        return is_int(tok, new);
+        return is_int(tok, tree);
     else if (type == REAL)
-        return is_real(tok, new);
+        return is_real(tok, tree);
     else if (type == BOOL)
-        return is_bool(tok, new);
+        return is_bool(tok, tree);
     else
         return PARSING_ERROR;
 }
 
 /* Function Checker to check operators */
-int is_operator (t_list** tok, p_tree** new) {
+int is_operator (t_list** tok, p_tree** tree) {
     enum TokenType type;
 
     type = (*tok)->token_type;
     if (type == PLUS)
-        return is_plus(tok, new);
+        return is_plus(tok, tree);
     else if (type == MINUS)
-        return is_minus(tok, new);
+        return is_minus(tok, tree);
     else if (type == MUL)
-        return is_mul(tok, new);
+        return is_mul(tok, tree);
     else if (type == DIV)
-        return is_div(tok, new);
+        return is_div(tok, tree);
     else if (type == MODULO)
-        return is_modulo(tok, new);
+        return is_modulo(tok, tree);
     else
-        return is_logical_op(tok, new);
+        return is_logical_op(tok, tree);
 }
 
 int is_var_binding(int type1, int type2) {
@@ -404,15 +416,16 @@ int is_number(t_list** tok, p_tree** tree) {
     p_tree *sign, *numeric;
     int status, has_sign;
 
-    (*tree)->token = "Number";
-    (*tree)->type = OBJECT;
+    if (( *tree = create_tree_entry("NUMBER", OBJECT, 0) ) == NULL ) {
+        printf("MEMORY ERR: output container not created.\n");
+        return MEMORY_ERROR;
+    }
 
     status = SUBTREE_OK;
     has_sign = 1;
     
     // Checking if expression has sign 
-    if ((sign = create_tree()) == NULL)
-        return PARSING_ERROR;
+    sign = create_tree();
     
     if ((*tok)->token_type == PLUS)
         status = is_plus(tok, &sign);
@@ -425,14 +438,12 @@ int is_number(t_list** tok, p_tree** tree) {
         free_parse_tree(sign);
         return status;
     }
+
     if (has_sign)
         (*tree)->child = sign;
-    else
-        free_parse_tree(sign);
 
     // Checking if expression type it has containing it 
-    if ((numeric = create_tree()) == NULL)
-        return MEMORY_ERROR;
+    numeric = create_tree();
 
     if ((*tok)->token_type == INT_CONSTANT)
         status = is_int_const(tok, &numeric);
@@ -462,13 +473,12 @@ int is_obj(t_list** tok, p_tree** tree) {
     p_tree* subtree;
     int status;
 
-   
-    (*tree)->token = "Object";
-    (*tree)->type = OBJECT;
-
-    
-    if ((subtree = create_tree()) == NULL)
+    if (( *tree = create_tree_entry("OBJ", OBJECT, 0) ) == NULL ) {
+        printf("MEMORY ERR: object container not created.\n");
         return MEMORY_ERROR;
+    }
+
+    subtree = create_tree();
 
     // use LL(1) FOLLOW Sets
     t_list* curr;
@@ -483,8 +493,9 @@ int is_obj(t_list** tok, p_tree** tree) {
     else if (curr->token_type == BOOL)
         status = is_bool(tok, &subtree);
     else if (curr->token_type == INT_CONSTANT ||
-             curr->token_type == REAL_CONSTANT)
+             curr->token_type == REAL_CONSTANT) {
         status = is_number(tok, &subtree);
+    }
     else
         status = PARSING_ERROR;
 
@@ -508,11 +519,12 @@ int is_quoted_string(t_list** tok, p_tree** tree) {
     nVar = nObj = 0;
 
     //Initial Tree declaring we are in a String Container
-    (*tree)->token = "String";
-    (*tree)->type = STR_CONSTANT;
-    
-    if ((char_seq = create_tree()) == NULL)
+    if (( *tree = create_tree_entry("STRING_CON", STRING_CON, 0) ) == NULL ) {
+        printf("MEMORY ERR: string container not created.\n");
         return MEMORY_ERROR;
+    }
+    
+    char_seq = create_tree();
     
     // Set the Char Seq as the initial child
     status = is_char_seq(tok, &char_seq);
@@ -523,6 +535,7 @@ int is_quoted_string(t_list** tok, p_tree** tree) {
 
     (*tree)->child = char_seq;
     last = char_seq;
+
 
     // IF there are variables needed to interpolate, count them
     int i = 0;
@@ -539,6 +552,14 @@ int is_quoted_string(t_list** tok, p_tree** tree) {
         else i++;
     }
 
+    if ((*tok)->token_type == ENDLINE) {
+        if (nVar > 0) {
+            return PARSING_ERROR;
+        }
+        else 
+            return SUBTREE_OK;
+    }
+
     while ((*tok)->token_type == COMMA) {
         if ((comma = create_tree()) == NULL)
             return MEMORY_ERROR;
@@ -553,9 +574,7 @@ int is_quoted_string(t_list** tok, p_tree** tree) {
         last = comma;
         
         // Now there must be a Obj
-        if ((obj = create_tree()) == NULL)
-            return MEMORY_ERROR;
-        
+        obj = create_tree();
         status = is_obj(tok, &obj);
         if (status != SUBTREE_OK) {
             free_parse_tree(obj);
@@ -583,13 +602,13 @@ int is_str_concat (t_list** tok, p_tree** tree) {
     p_tree *quotedstr, *plus, *last, *obj;
     int status;
 
-    (*tree)->token = (char[1]){'\0'};
-    (*tree)->type = CONCAT;
+    if (( *tree = create_tree_entry("CONCAT", CONCAT, 0) ) == NULL ) {
+        printf("MEMORY ERR: output container not created.\n");
+        return MEMORY_ERROR;
+    }
     status = SUBTREE_OK;
 
-    if ((quotedstr = create_tree()) == NULL)
-        return MEMORY_ERROR;
-
+    quotedstr = create_tree();
     status = is_quoted_string(tok, &quotedstr);
     if (status != SUBTREE_OK) {
         free_parse_tree(quotedstr);
@@ -598,9 +617,11 @@ int is_str_concat (t_list** tok, p_tree** tree) {
     (*tree)->child = quotedstr;
     last = quotedstr;
 
+    if ((*tok)->token_type == ENDLINE)
+        return SUBTREE_OK;
+
     while((*tok)->token_type == PLUS) {
-        if ((plus = create_tree()) == NULL)
-            return MEMORY_ERROR;
+        plus = create_tree();
         status = is_plus(tok, &plus);
         if (status != SUBTREE_OK) {
             free_parse_tree(plus);
@@ -609,8 +630,7 @@ int is_str_concat (t_list** tok, p_tree** tree) {
         last->sibling = plus;
         last = plus;
 
-        if ((obj = create_tree()) == NULL)
-            return MEMORY_ERROR;
+        obj = create_tree();
         status = is_obj(tok, &obj);
         if (status != SUBTREE_OK) {
             free_parse_tree(obj);

@@ -80,14 +80,12 @@ void display(t_list* table_ptr)
 	FILE *writeParsed=fopen("parsedTable.txt","w");
     
 	fprintf(writeParsed,"\t\tlexeme\t\ttoken-type\t\ttoken-name\n");
-	printf("\t\tlexeme\t\ttoken-type\t\ttoken-name\n");
 
 	traverser = table_ptr;
 
 	while( traverser != NULL)
 	{
 		fprintf(writeParsed,"%15s\t\t%3d\t\t%10s\n", traverser->lexeme, traverser->token_type, traverser->token_name);
-		printf("%15s\t\t%3d\t\t%10s\n", traverser->lexeme, traverser->token_type, traverser->token_name);
 		traverser = traverser->successor;
 	}
    

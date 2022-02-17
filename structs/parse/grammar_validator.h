@@ -23,16 +23,17 @@ int is_base_expr (t_list** tok, p_tree** tree) {
 
     int status;
     p_tree *lpar, *rpar, *subexpr, *obj;
-    status = SUBTREE_OK;
+    
+    if (( *tree = create_tree_entry("BASE_EXP", BASE_EXP, 0) ) == NULL ) {
+        printf("MEMORY ERR: base_expr container not created.\n");
+        return MEMORY_ERROR;
+    }
 
-    (*tree)->token = (char[1]){'\0'};
-    (*tree)->type = BASE_EXP;
-
+    // if a multiple expression
     if ((*tok)->token_type == OPEN_PAR) {
         // is a sub expression
         
-        if ((lpar = create_tree()) == NULL)
-            return MEMORY_ERROR;
+        lpar = create_tree();
         status = is_open_par(tok, &lpar);
         if (status != SUBTREE_OK){
             free_parse_tree(lpar);
@@ -41,8 +42,7 @@ int is_base_expr (t_list** tok, p_tree** tree) {
         (*tree)->child = lpar;
 
         
-        if ((subexpr = create_tree()) == NULL)
-            return MEMORY_ERROR;
+        subexpr = create_tree();
         status = is_expression(tok, &subexpr);
         if (status != SUBTREE_OK){
             free_parse_tree(subexpr);
@@ -51,8 +51,7 @@ int is_base_expr (t_list** tok, p_tree** tree) {
         lpar->sibling = subexpr;
 
         
-        if ((rpar = create_tree()) == NULL)
-            return MEMORY_ERROR;
+        rpar = create_tree();
         status = is_close_par(tok, &rpar);
         if (status != SUBTREE_OK){
             free_parse_tree(rpar);
@@ -65,8 +64,8 @@ int is_base_expr (t_list** tok, p_tree** tree) {
         // An object is any type of value that a user inputs 
         // (e.g.) x -> object-> identifier 
         //        54.5 -> object -> number -> real
-        if (obj == NULL)
-            return MEMORY_ERROR;
+        printf("went through obj\n");
+        obj = create_tree();
         status = is_obj(tok, &obj);
         if (status != SUBTREE_OK) {
             free_parse_tree(obj);
@@ -86,12 +85,13 @@ int is_term (t_list** tok, p_tree** tree) {
     enum TokenType type;
     p_tree *base, *op, *term;
 
-    status = SUBTREE_OK;
-    (*tree)->token = (char[1]){'\0'};
-    (*tree)->type = TERM;
-
-    if ((base = create_tree()) == NULL)
+    if (( *tree = create_tree_entry("TERM", TERM, 0) ) == NULL ) {
+        printf("MEMORY ERR: term container not created.\n");
         return MEMORY_ERROR;
+    }
+
+    printf("went through term\n");
+    base = create_tree();
     status = is_base_expr(tok, &base);
     if (status != SUBTREE_OK){
         free_parse_tree(base);
@@ -103,8 +103,7 @@ int is_term (t_list** tok, p_tree** tree) {
     type = (*tok)->token_type;
 
     if (match_term_type(type)){
-        if ((op = create_tree()) == NULL)
-            return MEMORY_ERROR;
+        op = create_tree();
         status = is_operator(tok, &op);
         if (status != SUBTREE_OK){
             free_parse_tree(op);
@@ -112,8 +111,7 @@ int is_term (t_list** tok, p_tree** tree) {
         }
         base->sibling = op;
 
-        if ((term = create_tree()) == NULL)
-            return MEMORY_ERROR;
+        term = create_tree();
         status = is_term(tok, &term);
         if (status != SUBTREE_OK){
             free_parse_tree(term);
@@ -133,12 +131,12 @@ int is_predicate (t_list** tok, p_tree** tree) {
     enum TokenType type;
     int status;
 
-    status = SUBTREE_OK;
-    (*tree)->token = (char[1]){'\0'};
-    (*tree)->type = PREDICATE;
-
-    if ((term = create_tree()) == NULL)
+    if (( *tree = create_tree_entry("PREDICATE", PREDICATE, 0) ) == NULL ) {
+        printf("MEMORY ERR: predicate container not created.\n");
         return MEMORY_ERROR;
+    }
+    printf("went through predicate\n");
+    term = create_tree();
     status = is_term(tok, &term);
     if (status != SUBTREE_OK){
         free_parse_tree(term);
@@ -151,8 +149,7 @@ int is_predicate (t_list** tok, p_tree** tree) {
     type = (*tok)->token_type;
     if (match_arithmetic_type(type) &&
         !match_term_type(type)){
-        if ((op = create_tree()) == NULL)
-            return MEMORY_ERROR;
+        op = create_tree();
         status = is_operator(tok, &op);
         if (status != SUBTREE_OK){
             free_parse_tree(op);
@@ -160,8 +157,9 @@ int is_predicate (t_list** tok, p_tree** tree) {
         }
         term->sibling = op;
 
-        if ((pred = create_tree()) == NULL)
-            return MEMORY_ERROR;
+        printf("Went through arithmetic +-\n");
+
+        pred = create_tree();
         status = is_predicate(tok, &pred);
         if (status != SUBTREE_OK){
             free_parse_tree(pred);
@@ -182,13 +180,13 @@ int is_expression (t_list** tok, p_tree** tree) {
     enum TokenType type;
     int status;
 
-    status = SUBTREE_OK;
-    (*tree)->token = (char[1]){'\0'};
-    (*tree)->type = EXPR;
-    
-
-    if ((pred = create_tree()) == NULL)
+    if (( *tree = create_tree_entry("EXPR", EXPR, 0) ) == NULL ) {
+        printf("MEMORY ERR: expression container not created.\n");
         return MEMORY_ERROR;
+    }
+
+    printf("went through expr\n");
+    pred = create_tree();
     status = is_predicate(tok, &pred);
     if (status != SUBTREE_OK){
         free_parse_tree(pred);
@@ -196,12 +194,11 @@ int is_expression (t_list** tok, p_tree** tree) {
     }
     (*tree)->child = pred;
 
-    // The remainder of Expr is optional
-    // (only if there is a conditional operator)
+    //  if there is a conditional operator
     type = (*tok)->token_type;
-    if (match_logical_type(type)){
-        if ((op = create_tree()) == NULL)
-            return MEMORY_ERROR;
+    
+    if (match_operator_type(type)){
+        op = create_tree();
         status = is_operator(tok, &op);
         if (status != SUBTREE_OK){
             free_parse_tree(op);
@@ -209,8 +206,7 @@ int is_expression (t_list** tok, p_tree** tree) {
         }
         pred->sibling = op;
 
-        if ((expr = create_tree()) == NULL)
-            return MEMORY_ERROR;
+        expr = create_tree();
         status = is_expression(tok, &expr);
         if (status != SUBTREE_OK){
             free_parse_tree(expr);
@@ -225,14 +221,16 @@ int is_expression (t_list** tok, p_tree** tree) {
 
 /* Function checker to see if the line statement is following the rules of assignment statement*/
 int is_assignment_stmt(t_list** tok, p_tree** tree) {
-    p_tree *datatype, *var1, *eq, *expression;
+    t_list * curr;
+    p_tree *datatype, *var1, *eq, *expression, *comma, *other, *endline;
     int status;
 
-    (*tree)->token = (char[1]) {'\0'};
-    (*tree)->type = ASSIGN_CON;
-
-    if ((datatype = create_tree()) == NULL)
+    if (( *tree = create_tree_entry("ASSIGN_CON", ASSIGN_CON, 0) ) == NULL ) {
+        printf("MEMORY ERR: assign container not created.\n");
         return MEMORY_ERROR;
+    }
+
+    datatype = create_tree();
     status = is_datatype(tok, &datatype);
     if (status != SUBTREE_OK) {
         free_parse_tree(datatype);
@@ -240,8 +238,8 @@ int is_assignment_stmt(t_list** tok, p_tree** tree) {
     }
     (*tree)->child = datatype;
 
-    if ((var1 = create_tree()) == NULL)
-        return MEMORY_ERROR;
+    
+    var1 = create_tree();
     status = is_identifier(tok, &var1);
     if (status != SUBTREE_OK) {
         free_parse_tree(var1);
@@ -249,25 +247,55 @@ int is_assignment_stmt(t_list** tok, p_tree** tree) {
     }
     datatype->sibling = var1;
 
-    if ((eq = create_tree()) == NULL)
-        return MEMORY_ERROR;
-    status = is_assign(tok, &eq);
-    if (status != SUBTREE_OK) {
-        free_parse_tree(eq);
-        return PARSING_ERROR;
+    if((*tok)->token_type == ENDLINE) {
+        return SUBTREE_OK;
     }
-    var1->sibling = eq;
 
-    if ((expression = create_tree()) == NULL)
-        return MEMORY_ERROR;
+    curr = *tok;
+    if (curr->token_type == ASSIGN) {
+        eq = create_tree();
+        status = is_assign(tok, &eq);
+        if (status != SUBTREE_OK) {
+            free_parse_tree(eq);
+            return PARSING_ERROR;
+        }
+        var1->sibling = eq;
 
-    status = is_expression(tok, &expression);
-    if (status != SUBTREE_OK) {
-        free_parse_tree(expression);
-        return PARSING_ERROR;
+        expression = create_tree();
+        status = is_expression(tok, &expression);
+        if (status != SUBTREE_OK) {
+            free_parse_tree(expression);
+            return PARSING_ERROR;
+        }
+        eq->sibling = expression;
+
+        return status;
     }
-    eq->sibling = expression;
-    return SUBTREE_OK;
+    
+    if (curr->token_type == COMMA) {
+        while (curr->token_type != ENDLINE) {
+            comma = create_tree();
+            status = is_comma(tok, &comma);
+            if (status != SUBTREE_OK) {
+                free_parse_tree(var1);
+                return PARSING_ERROR;
+            }
+            var1->sibling = comma;
+
+            var1 = create_tree();
+            status = is_identifier(tok, &var1);
+            if (status != SUBTREE_OK) {
+                free_parse_tree(var1);
+                return PARSING_ERROR;
+            }
+            comma->sibling = var1;
+            curr = *tok;
+        }
+        return status;
+    }
+
+    printf("PARSING ERROR: Symbol <%s> did not match Assignment or declaration grammar. please check again.\n", type2char((*tok)->token_type));
+    return PARSING_ERROR;
 }
 
 /* Function checker to see if the line statement is following the rules of input statement*/
@@ -276,11 +304,12 @@ int is_input_stmt(t_list** tok, p_tree** tree) {
     p_tree *input, *var, *as, *datatype;
     int status;
    
-    (*tree)->token = (char[1]){'\0'};
-    (*tree)->type = INPUT_CON;
-
-    if ((input = create_tree()) == NULL)
+    if (( *tree = create_tree_entry("INPUT_CON", INPUT_CON, 0) ) == NULL ) {
+        printf("MEMORY ERR: assign container not created.\n");
         return MEMORY_ERROR;
+    }
+
+    input = create_tree();
     status = is_input(tok, &input);
     if (status != SUBTREE_OK) {
         free_parse_tree(input);
@@ -288,8 +317,7 @@ int is_input_stmt(t_list** tok, p_tree** tree) {
     }
     (*tree)->child = input;
 
-    if ((var = create_tree()) == NULL)
-        return MEMORY_ERROR;
+    var = create_tree();
     status = is_identifier(tok, &var);
     if (status != SUBTREE_OK) {
         free_parse_tree(var);
@@ -297,8 +325,7 @@ int is_input_stmt(t_list** tok, p_tree** tree) {
     }
     input->sibling = var;
 
-    if ((as = create_tree()) == NULL)
-        return MEMORY_ERROR;
+    as = create_tree();
     status = is_as(tok, &as);
     if (status != SUBTREE_OK) {
         free_parse_tree(as);
@@ -306,17 +333,7 @@ int is_input_stmt(t_list** tok, p_tree** tree) {
     }
     input->sibling = as;
 
-    if ((as = create_tree()) == NULL)
-        return MEMORY_ERROR;
-    status = is_as(tok, &as);
-    if (status != SUBTREE_OK) {
-        free_parse_tree(as);
-        return status;
-    }
-    input->sibling = as;
-
-    if ((datatype = create_tree()) == NULL)
-        return MEMORY_ERROR;
+    datatype = create_tree();
     status = is_datatype(tok, &datatype);
     if (status != SUBTREE_OK) {
         free_parse_tree(datatype);
@@ -330,14 +347,15 @@ int is_input_stmt(t_list** tok, p_tree** tree) {
 /* Function checker to see if the line statement is following the rules of input statement*/
 int is_output_stmt(t_list** tok, p_tree** tree) {
     // Create subtree
-    p_tree *print, *obj;
+    p_tree *print, *open_par, *close_par, *obj;
     int status;
     
-    (*tree)->token = (char[1]){'\0'};
-    (*tree)->type = OUTPUT_CON;
-
-    if ((print = create_tree()) == NULL)
+    if (( *tree = create_tree_entry("OUTPUT_CON", OUTPUT_CON, 0) ) == NULL ) {
+        printf("MEMORY ERR: output container not created.\n");
         return MEMORY_ERROR;
+    }
+
+    print = create_tree();
     status = is_print(tok, &print);
     if (status != SUBTREE_OK) {
         free_parse_tree(print);
@@ -345,9 +363,17 @@ int is_output_stmt(t_list** tok, p_tree** tree) {
     }
     (*tree)->child = print;
 
+    open_par = create_tree();
+    status = is_open_par(tok, &open_par);
+    if (status != SUBTREE_OK) {
+        free_parse_tree(print);
+        return status;
+    }
+    print->child = open_par;
+
+    
     if ((*tok)->token_type == STR_CONSTANT) {
-        if ((obj = create_tree()) == NULL)
-            return MEMORY_ERROR;
+        obj = create_tree();
         status = is_str_concat(tok, &obj);
         if (status != SUBTREE_OK) {
             free_parse_tree(obj);
@@ -357,8 +383,7 @@ int is_output_stmt(t_list** tok, p_tree** tree) {
 
        
     } else {
-        if ((obj = create_tree()) == NULL)
-            return MEMORY_ERROR;
+        obj = create_tree();
         status = is_obj(tok, &obj);
         if (status != SUBTREE_OK) {
             free_parse_tree(obj);
@@ -366,6 +391,14 @@ int is_output_stmt(t_list** tok, p_tree** tree) {
         }
         print->sibling = obj;
     }
+
+    close_par = create_tree();
+    status = is_close_par(tok, &close_par);
+    if (status != SUBTREE_OK) {
+        free_parse_tree(print);
+        return status;
+    }
+    open_par->child = close_par;
     
     return status;
 }
@@ -380,7 +413,7 @@ int is_line(t_list** tok, p_tree** line) {
     t_list* curr;
 
     // Check if entry is created successfully 
-    if (( *line = create_tree_entry("Line", LINE) ) == NULL ) {
+    if (( *line = create_tree_entry("Line", LINE, 0) ) == NULL ) {
         printf("line not created");
         return MEMORY_ERROR;
     }
@@ -394,11 +427,10 @@ int is_line(t_list** tok, p_tree** line) {
     } else if (curr->token_type == PRINT) {
         status = is_output_stmt(tok, &subtree);
     } else if (curr->token_type == COMMENT || curr->token_type == ENDCOMMENT) {
-        subtree = create_tree_entry("COMMENT", COMMENT);
+        *tok = curr->successor;
         status = SUBTREE_OK;
     } else if (curr->token_type == ENDLINE) {
-        subtree = create_tree_entry("ENDLINE", ENDLINE);
-        status = SUBTREE_OK;
+        status = is_endline(tok, &subtree);
     }
     /* else if (curr->token_type == IF || 
     curr->token_type == SWITCH) {
@@ -418,61 +450,70 @@ int is_line(t_list** tok, p_tree** line) {
 
 
 int is_program(t_list** head, p_tree** tree) {
-    t_list* tok;
+    t_list* tok, *temp_list;
     int status, child;
-    p_tree *current;
+    p_tree *current, *temp;
     p_tree *line, *endline;
 
-    if (( *tree = create_tree_entry("PROG", PROG) ) == NULL ) {
+    temp = create_tree_entry("PROG", PROG, 0);
+    if (temp  == NULL ) {
         printf("program not created");
         return MEMORY_ERROR;
     }
-    current = *tree;
 
-    //
-    // Nested call to identify grammar tokens return pointer to subtree(s)
-    // or NULL is parsing/memory error happened.
-    //
+    if (*tree == NULL) {
+        *tree = temp;
+
+        current = *tree;
+        temp_list = *head;
+
+        //
+        // Nested call to identify grammar tokens return pointer to subtree(s)
+        // or NULL is parsing/memory error happened.
+        //
+        
+        child = 1; // true - the first line is always a child of Program
+        // A program is a (possibly empty) sequence of 'line' 'end<token>'
+
+        while ((temp_list) != NULL) {
+            status = is_line(&temp_list, &line);
+            if (child) {
+                current->child = line;
+                child = !child;
+            } else {
+                current->sibling = line;
+            }
+
+            if (status == MEMORY_ERROR) {
+                printf("Program Out of Memory.\n");
+                return MEMORY_ERROR;
+            } 
+            if (status == PARSING_ERROR){
+                printf("PARSER ERROR: \n");
+                return PARSING_ERROR;
+            }
     
-    child = 3; // true - the first line is always a child of Program
-    // A program is a (possibly empty) sequence of 'line' 'end<token>'
-
-    while ((*head) != NULL ) {
-        status = is_line(head, &line);
-
-        if (child == 3) {
-            current->child = line;
-            child = status;
-        } else {
-            current->sibling = line;
         }
-
-        if (status == MEMORY_ERROR) {
-            printf("Program Out of Memory.");
-            break;
-        } 
-        if (status == PARSING_ERROR){
-            printf("PARSER ERROR: \n");
-            break;
-        }
-   
+        free_parse_tree(line);
+        return SUBTREE_OK;
     }
-    free_parse_tree(line);
+    
+    return MEMORY_ERROR;
+    
 }
 
 
-int run_with_stat(t_list* head) {
+void run_with_stat(t_list* head) {
     p_tree* tree;
     int status;
 
-    if(( tree = create_tree()) == NULL) {
-        return MEMORY_ERROR;
-    }
+    tree = create_tree();
 
     status = is_program(&head, &tree);
-    print_parse_tree(tree);
+    if(status == SUBTREE_OK)
+        print_parse_tree(tree);
+    
 
-    return status;
 
 
 }
