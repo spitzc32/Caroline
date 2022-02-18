@@ -63,6 +63,7 @@ CONTINUE                        {insert(&symbol_table,yytext,"JUMPKEYWORD",CONTI
 TRUE                            {insert(&symbol_table,yytext,"BOOLKEYWORD",TRUE,yylineno);}
 FALSE                           {insert(&symbol_table,yytext,"BOOLKEYWORD",FALSE,yylineno);}
 TO                              {insert(&symbol_table,yytext,"LOOPKEYWORD",TO,yylineno);}
+BY                              {insert(&symbol_table,yytext,"LOOPKEYWORD",BY,yylineno);}
 AS                              {insert(&symbol_table,yytext,"IOKEYWORD",AS,yylineno);}
 
   /* Comment Section */
