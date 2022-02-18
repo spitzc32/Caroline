@@ -1,0 +1,4 @@
+INT count
+FOR count = 1 TO 100 
+    PRINT(count)
+ENDLOOP
