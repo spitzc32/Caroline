@@ -477,11 +477,11 @@ int is_for_loop(t_list** tok, p_tree** tree){
     printf("Went through max_expression\n");
 
     curr = *tok;
-    printf("%d", curr->token_type);
+    printf("%d %d\n", curr->token_type, BY);
 
     if (curr->token_type == BY){
         by = create_tree();
-        status = is_expression(tok, &by);
+        status = is_by(tok, &by);
         if (status != SUBTREE_OK) {
             free_parse_tree(by);
             return status;
