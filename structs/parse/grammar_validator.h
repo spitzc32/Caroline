@@ -403,6 +403,17 @@ int is_output_stmt(t_list** tok, p_tree** tree) {
     return status;
 }
 
+int is_counter(t_list** tok, p_tree** tree){
+    p_tree ;
+    t_list *curr;
+    int status;
+
+    if (( *tree = create_tree_entry("COUNTER", OUTPUT_CON, 0) ) == NULL ) {
+        printf("MEMORY ERR: output container not created.\n");
+        return MEMORY_ERROR;
+    }
+}
+
 
 int is_for_loop(t_list** tok, p_tree** tree){
     p_tree *for_kywrd, *identifier, *eq, *min_expression, *to, *max_expression, *by, *by_expression, *end_line, *body, *end_loop;

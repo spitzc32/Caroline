@@ -1,7 +1,5 @@
-INT count
+INT count = 1
+count = 1
 FOR count = 1 TO 100 BY 1
     PRINT(count)
-    FOR count = 1 TO 100
-        PRINT(count)
-    ENDLOOP
 ENDLOOP
