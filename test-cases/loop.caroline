@@ -1,13 +1,7 @@
 INT count = 1
 
-FOR count = 1 TO 100 BY 1
-    PRINT(count)
-ENDLOOP
+BOOL flag = TRUE
 
-FOR count TO 100 BY 1
-    PRINT(count)
-ENDLOOP
-
-FOR INT count = 1 TO 100
+WHILE flag
     PRINT(count)
 ENDLOOP

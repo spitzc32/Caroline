@@ -408,7 +408,7 @@ int is_output_stmt(t_list** tok, p_tree** tree) {
 
 int is_counter(t_list** tok, p_tree** tree){
     p_tree *datatype, *identifier, *eq, *expression;
-    t_list *curr;
+    t_list* curr;
     int status;
 
     printf("Going through counter\n");
@@ -474,6 +474,144 @@ int is_counter(t_list** tok, p_tree** tree){
 
     return status;
 
+}
+
+
+int is_while_loop(t_list** tok, p_tree** tree){
+    p_tree *while_kywrd, *expression, *endline, *body, *end_loop;
+    int status;
+
+    if (( *tree = create_tree_entry("WHILE_CON", OUTPUT_CON, 0) ) == NULL ) {
+        printf("MEMORY ERR: while loop container not created.\n");
+        return MEMORY_ERROR;
+    }
+
+    while_kywrd = create_tree();
+    status = is_while(tok, &while_kywrd);
+    if (status != SUBTREE_OK) {
+        free_parse_tree(while_kywrd);
+        return status;
+    }
+
+    (*tree)->child = while_kywrd;
+
+    printf("Went through while\n");
+
+    expression = create_tree();
+    status = is_expression(tok, &expression);
+    if (status != SUBTREE_OK) {
+        free_parse_tree(expression);
+        return status;
+    }
+
+    while_kywrd->sibling = expression;
+
+    printf("Went through expression\n");
+
+    endline = create_tree();
+    status = is_endline(tok, &endline);
+    if (status != SUBTREE_OK) {
+        free_parse_tree(endline);
+        return status;
+    }
+
+    expression->sibling = endline;
+
+    printf("Went through endline\n");
+
+    body = create_tree();
+    status = is_block(tok, &body, ENDLOOP);
+    if (status != SUBTREE_OK) {
+        free_parse_tree(body);
+        return status;
+    }
+
+    endline->sibling = body;
+
+    printf("Went through body\n");
+
+    end_loop = create_tree();
+    status = is_endloop(tok, &end_loop);
+    if (status != SUBTREE_OK) {
+        free_parse_tree(end_loop);
+        return status;
+    }
+
+    body->sibling = end_loop;
+
+    printf("Went through end_loop\n");
+
+}
+
+
+int is_do_while_loop(t_list** tok, p_tree** tree){
+    p_tree *do_kywrd, *while_kywrd, *expression, *endline, *body, *endline_2, *end_loop;
+    int status;
+
+    if (( *tree = create_tree_entry("WHILE_CON", OUTPUT_CON, 0) ) == NULL ) {
+        printf("MEMORY ERR: while loop container not created.\n");
+        return MEMORY_ERROR;
+    }
+
+    do_kywrd = create_tree();
+    status = is_while(tok, &do_kywrd);
+    if (status != SUBTREE_OK) {
+        free_parse_tree(do_kywrd);
+        return status;
+    }
+    (*tree)->child = do_kywrd;
+
+    printf("Went through do\n");
+
+    endline = create_tree();
+    status = is_endline(tok, &endline);
+    if (status != SUBTREE_OK) {
+        free_parse_tree(endline);
+        return status;
+    }
+    do_kywrd->sibling = endline;
+
+    printf("Went through endline\n");
+
+    body = create_tree();
+    status = is_block(tok, &body);
+    if (status != SUBTREE_OK) {
+        free_parse_tree(body);
+        return status;
+    }
+    endline->sibling = body;
+
+    printf("Went through body\n");
+
+    while_kywrd = create_tree();
+    status = is_while(tok, &while_kywrd);
+    if (status != SUBTREE_OK) {
+        free_parse_tree(while_kywrd);
+        return status;
+    }
+    endline->sibling = while_kywrd;
+
+    printf("Went through while_kywrd\n");
+
+    endline_2 = create_tree();
+    status = is_endline(tok, &endline_2);
+    if (status != SUBTREE_OK) {
+        free_parse_tree(endline_2);
+        return status;
+    }
+    while_kywrd->sibling = endline_2;
+
+    printf("Went through endline_2\n");
+
+    end_loop = create_tree();
+    status = is_endloop(tok, &end_loop);
+    if (status != SUBTREE_OK) {
+        free_parse_tree(end_loop);
+        return status;
+    }
+    endline_2->sibling = end_loop;
+
+    printf("Went through end_loop\n");
 }
 
 
@@ -670,6 +808,12 @@ int is_line(t_list** tok, p_tree** line) {
     }
     else if (curr->token_type == FOR){
         status = is_for_loop(tok, &subtree);
+    }
+    else if (curr->token_type == WHILE){
+        status = is_while_loop(tok, &subtree);
+    }
+    else if (curr->token_type == DO){
+        status = is_do_while_loop(tok, &subtree);
     }
     /* else if (curr->token_type == IF || 
     curr->token_type == SWITCH) {
