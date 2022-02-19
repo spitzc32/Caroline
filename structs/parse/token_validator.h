@@ -495,7 +495,10 @@ int is_obj(t_list** tok, p_tree** tree) {
     else if (curr->token_type == INT_CONSTANT ||
              curr->token_type == REAL_CONSTANT) {
         status = is_number(tok, &subtree);
-    }
+    } else if (curr->token_type == TRUE)
+        status = is_true(tok, &subtree);
+    else if (curr->token_type == FALSE)
+        status = is_false(tok, &subtree);
     else
         status = PARSING_ERROR;
 

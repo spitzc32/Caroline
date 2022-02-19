@@ -250,7 +250,8 @@ int is_assignment_stmt(t_list** tok, p_tree** tree) {
     }
     datatype->sibling = var1;
 
-    if((*tok)->token_type == ENDLINE) {
+    if((*tok)->token_type == ENDLINE || (*tok) == NULL) {
+        printf("passed through this line");
         return SUBTREE_OK;
     }
 
@@ -723,6 +724,7 @@ int is_program(t_list** head, p_tree** tree) {
                 current->sibling = line;
             }
 
+
             if (status == MEMORY_ERROR) {
                 printf("Program Out of Memory.\n");
                 return MEMORY_ERROR;
@@ -733,7 +735,6 @@ int is_program(t_list** head, p_tree** tree) {
             }
     
         }
-        free_parse_tree(line);
         return SUBTREE_OK;
     }
     
@@ -749,6 +750,7 @@ void run_with_stat(t_list* head) {
     tree = create_tree();
 
     status = is_program(&head, &tree);
+    printf("STATUS RETURNED HERE: %d", status);
     if(status == SUBTREE_OK)
         print_parse_tree(tree);
     

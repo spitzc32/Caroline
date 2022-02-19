@@ -1,10 +1,5 @@
-PRINT("This is a number")
-INT y = 4
-y = 4
-INT x = ((2.0 + 33) * 32 - 23)
+BOOL flag = TRUE
 
-IF (x < 5) THEN
-    PRINT("The number is less than 5.")
-ENDIF
-
-INT y += x * (x / 3(x + 2))
+FOR count TO 100 BY 1
+    PRINT(count)
+ENDLOOP
