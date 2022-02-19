@@ -554,7 +554,7 @@ int is_do_while_loop(t_list** tok, p_tree** tree){
     }
 
     do_kywrd = create_tree();
-    status = is_while(tok, &do_kywrd);
+    status = is_do(tok, &do_kywrd);
     if (status != SUBTREE_OK) {
         free_parse_tree(do_kywrd);
         return status;

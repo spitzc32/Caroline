@@ -1,7 +1,17 @@
 INT count = 1
 
-BOOL flag = TRUE
-
-WHILE flag
+FOR count TO 100 BY 1
     PRINT(count)
+    PRINT(count)
+ENDLOOP
+
+WHILE count < 100
+    PRINT(count)
+    PRINT(count)
+ENDLOOP
+
+DO
+    PRINT(count)
+    PRINT(count)
+WHILE count < 100
 ENDLOOP
