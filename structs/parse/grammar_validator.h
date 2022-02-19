@@ -230,13 +230,16 @@ int is_assignment_stmt(t_list** tok, p_tree** tree) {
         return MEMORY_ERROR;
     }
 
-    datatype = create_tree();
-    status = is_datatype(tok, &datatype);
-    if (status != SUBTREE_OK) {
-        free_parse_tree(datatype);
-        return PARSING_ERROR;
+    if (match_datatype((*tok)->token_type)) {
+        datatype = create_tree();
+        status = is_datatype(tok, &datatype);
+        if (status != SUBTREE_OK) {
+            free_parse_tree(datatype);
+            return PARSING_ERROR;
+        }
+        (*tree)->child = datatype;
     }
-    (*tree)->child = datatype;
+    
 
     
     var1 = create_tree();
@@ -420,7 +423,8 @@ int is_line(t_list** tok, p_tree** line) {
     
     curr = *tok;
 
-    if(is_var_binding(curr->token_type, curr->successor->token_type)) {
+    if(is_var_binding(curr->token_type, curr->successor->token_type) ||
+    curr-> token_type == IDENTIFIER) {
         status = is_assignment_stmt(tok, &subtree);
     } else if(curr->token_type == INPUT) {
         status = is_input_stmt(tok, &subtree);
