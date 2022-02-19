@@ -407,24 +407,83 @@ int is_output_stmt(t_list** tok, p_tree** tree) {
 }
 
 int is_counter(t_list** tok, p_tree** tree){
-    p_tree ;
+    p_tree *datatype, *identifier, *eq, *expression;
     t_list *curr;
     int status;
 
+    printf("Going through counter\n");
+
     if (( *tree = create_tree_entry("COUNTER", OUTPUT_CON, 0) ) == NULL ) {
-        printf("MEMORY ERR: output container not created.\n");
+        printf("MEMORY ERR: counter container not created.\n");
         return MEMORY_ERROR;
     }
+
+    curr = *tok;
+
+    if (match_datatype(curr->token_type)){
+        datatype = create_tree();
+        status = is_datatype(tok, &datatype);
+        if (status != SUBTREE_OK) {
+            free_parse_tree(datatype);
+            return status;
+        }
+
+        (*tree)->child = datatype;
+
+        identifier = create_tree();
+        status = is_identifier(tok, &identifier);
+        if (status != SUBTREE_OK) {
+            free_parse_tree(identifier);
+            return status;
+        }
+
+        datatype->sibling = identifier;
+    } else {
+        identifier = create_tree();
+        status = is_identifier(tok, &identifier);
+        if (status != SUBTREE_OK) {
+            free_parse_tree(identifier);
+            return status;
+        }
+
+        (*tree)->child = identifier;
+    }
+
+    curr = *tok;
+    if (curr->token_type == ASSIGN){
+        eq = create_tree();
+        status = is_assign(tok, &eq);
+        if (status != SUBTREE_OK) {
+            free_parse_tree(eq);
+            return status;
+        }
+
+        identifier->sibling = eq;
+
+        expression = create_tree();
+        status = is_expression(tok, &expression);
+        if (status != SUBTREE_OK) {
+            free_parse_tree(expression);
+            return status;
+        }
+
+        identifier->sibling = expression;
+    }
+
+    printf("Went through counter\n");
+
+    return status;
+
 }
 
 
 int is_for_loop(t_list** tok, p_tree** tree){
-    p_tree *for_kywrd, *identifier, *eq, *min_expression, *to, *max_expression, *by, *by_expression, *end_line, *body, *end_loop;
+    p_tree *for_kywrd, *counter, *to, *max_expression, *by, *by_expression, *end_line, *body, *end_loop;
     t_list *curr;
     int status;
     
     if (( *tree = create_tree_entry("FOR_CON", OUTPUT_CON, 0) ) == NULL ) {
-        printf("MEMORY ERR: output container not created.\n");
+        printf("MEMORY ERR: for loop container not created.\n");
         return MEMORY_ERROR;
     }
 
@@ -439,36 +498,13 @@ int is_for_loop(t_list** tok, p_tree** tree){
 
     printf("Went through for\n");
 
-    identifier = create_tree();
-    status = is_identifier(tok, &identifier);
+    counter = create_tree();
+    status = is_counter(tok, &counter);
     if (status != SUBTREE_OK) {
-        free_parse_tree(identifier);
+        free_parse_tree(counter);
         return status;
     }
-    for_kywrd->sibling = identifier;
-
-    printf("Went through keyword\n");
-
-
-    eq = create_tree();
-    status = is_assign(tok, &eq);
-    if (status != SUBTREE_OK) {
-        free_parse_tree(eq);
-        return status;
-    }
-    identifier->sibling = eq;
-
-    printf("Went through equals\n");
-
-    min_expression = create_tree();
-    status = is_expression(tok, &min_expression);
-    if (status != SUBTREE_OK) {
-        free_parse_tree(min_expression);
-        return status;
-    }
-    eq->sibling = min_expression;
-
-    printf("Went through min_expression\n");
+    for_kywrd->sibling = counter;    
 
     to = create_tree();
     status = is_to(tok, &to);
@@ -476,7 +512,7 @@ int is_for_loop(t_list** tok, p_tree** tree){
         free_parse_tree(to);
         return status;
     }
-    min_expression->sibling = to;
+    counter->sibling = to;
 
     printf("Went through to\n");
 
@@ -486,7 +522,7 @@ int is_for_loop(t_list** tok, p_tree** tree){
         free_parse_tree(max_expression);
         return status;
     }
-    eq->sibling = max_expression;
+    to->sibling = max_expression;
 
     printf("Went through max_expression\n");
 
@@ -563,7 +599,7 @@ int is_block(t_list** tok, p_tree** tree, int terminator){
     t_list *curr;
     
     if (( *tree = create_tree_entry("BLOCK_CON", OUTPUT_CON, 0) ) == NULL ) {
-        printf("MEMORY ERR: output container not created.\n");
+        printf("MEMORY ERR: block container not created.\n");
         return MEMORY_ERROR;
     }
 
