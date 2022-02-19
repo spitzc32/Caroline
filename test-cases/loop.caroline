@@ -1,13 +1,17 @@
 INT count = 1
 
-FOR count = 1 TO 100 BY 1
-    PRINT(count)
-ENDLOOP
-
 FOR count TO 100 BY 1
     PRINT(count)
+    PRINT(count)
 ENDLOOP
 
-FOR INT count = 1 TO 100
+WHILE count < 100
     PRINT(count)
+    PRINT(count)
+ENDLOOP
+
+DO
+    PRINT(count)
+    PRINT(count)
+WHILE count < 100
 ENDLOOP
