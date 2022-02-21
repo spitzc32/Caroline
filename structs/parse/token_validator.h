@@ -69,6 +69,14 @@ int match_term_type (enum TokenType type) {
             type == MODULO);
 }
 
+/* match which term operator is used */
+int match_crement_type (enum TokenType type) {
+    return (type == PLUSCREMENT ||
+            type == MINUSCREMENT ||
+            type == MULTICREMENT ||
+            type == DIVCREMENT);
+}
+
 // SINGLE TOKEN FUNCTIONS
 /* Template function for Checking token succession types */
 int tok_validator (t_list** tok, p_tree** tree, int type, char* lexeme) {
@@ -260,12 +268,20 @@ int is_ls_than_eq(t_list** tok, p_tree** tree) {
     return tok_validator(tok, tree, LS_THAN_EQ, NULL);
 }
 
-int is_decrement(t_list** tok, p_tree** tree) {
-    return tok_validator(tok, tree, DECREMENT, NULL);
+int is_minuscrement(t_list** tok, p_tree** tree) {
+    return tok_validator(tok, tree, MINUSCREMENT, NULL);
 }
 
-int is_increment(t_list** tok, p_tree** tree) {
-    return tok_validator(tok, tree, INCREMENT, NULL);
+int is_pluscrement(t_list** tok, p_tree** tree) {
+    return tok_validator(tok, tree, PLUSCREMENT, NULL);
+}
+
+int is_multicrement(t_list** tok, p_tree** tree) {
+    return tok_validator(tok, tree, MULTICREMENT, NULL);
+}
+
+int is_divcrement(t_list** tok, p_tree** tree) {
+    return tok_validator(tok, tree, DIVCREMENT, NULL);
 }
 
 int is_gt_than_eq(t_list** tok, p_tree** tree) {
@@ -378,6 +394,26 @@ int is_datatype (t_list** tok, p_tree** tree) {
         return is_bool(tok, tree);
     else
         return PARSING_ERROR;
+}
+
+/* Function Checker to check crement operators */
+int is_crement (t_list** tok, p_tree** tree) {
+    enum TokenType type;
+
+    type = (*tok)->token_type;
+    if (type == PLUSCREMENT)
+        return is_pluscrement(tok, tree);
+    else if (type == MINUSCREMENT)
+        return is_minuscrement(tok, tree);
+    else if (type == MULTICREMENT)
+        return is_multicrement(tok, tree);
+    else if (type == DIVCREMENT)
+        return is_divcrement(tok, tree);
+    else {
+        printf("PARSER ERROR: In line %d, where lexeme=<%s>. Expected any type of <CREMENT> found <%s>", 
+        (*tok)->line, (*tok)->lexeme, type2char((*tok)->token_type));
+        return PARSING_ERROR;
+    }
 }
 
 /* Function Checker to check operators */
@@ -499,7 +535,21 @@ int is_obj(t_list** tok, p_tree** tree) {
         status = is_true(tok, &subtree);
     else if (curr->token_type == FALSE)
         status = is_false(tok, &subtree);
-    else
+    else if (curr->token_type == ENDLINE) {
+        printf("PARSING ERROR: In line %d, where lexeme=\\n, missing type <OBJ> FOUND <ENDLINE> within the statement", curr->line);
+        status = PARSING_ERROR;
+    } else if (curr->token_type == OPEN_PAR) {
+        printf("PARSER ERROR: In line %d, where lexeme=( .Expecting data of type <Obj> found <OPEN_PAR>", curr->line);
+        status = PARSING_ERROR;
+    } else if (curr->token_type == CLOSE_PAR) {
+        printf("PARSER ERROR: In line %d, where lexeme=). Expecting data of Type <Obj> found <CLOSE_PAR>", curr->line);
+        status = PARSING_ERROR;
+    } else if (match_arithmetic_type(curr->token_type)) {
+        printf("PARSER ERROR: In line %d, where lexeme=%s. Expecting data of type <Obj> found <%s>", 
+        curr->line, curr->lexeme, type2char(curr->token_type));
+    }
+
+    else   
         status = PARSING_ERROR;
 
     if (status == SUBTREE_OK)

@@ -64,7 +64,6 @@ int is_base_expr (t_list** tok, p_tree** tree) {
         // An object is any type of value that a user inputs 
         // (e.g.) x -> object-> identifier 
         //        54.5 -> object -> number -> real
-        printf("went through obj\n");
         obj = create_tree();
         status = is_obj(tok, &obj);
         if (status != SUBTREE_OK) {
@@ -149,6 +148,7 @@ int is_predicate (t_list** tok, p_tree** tree) {
     type = (*tok)->token_type;
     if (match_arithmetic_type(type) &&
         !match_term_type(type)){
+        printf("in arith, %d\n", type);
         op = create_tree();
         status = is_operator(tok, &op);
         if (status != SUBTREE_OK){
@@ -205,6 +205,7 @@ int is_expression (t_list** tok, p_tree** tree) {
             return status;
         }
         pred->sibling = op;
+        
 
         expr = create_tree();
         status = is_expression(tok, &expr);
@@ -214,7 +215,8 @@ int is_expression (t_list** tok, p_tree** tree) {
         }
         op->sibling = expr;
     }
-    return status;
+
+     return status;
 }
 
 /* ASSIGNMENT AND I/O STATEMENTS */
@@ -250,7 +252,7 @@ int is_assignment_stmt(t_list** tok, p_tree** tree) {
     }
     datatype->sibling = var1;
 
-    if((*tok)->token_type == ENDLINE || (*tok) == NULL) {
+    if((*tok)->token_type == ENDLINE) {
         printf("passed through this line");
         return SUBTREE_OK;
     }
@@ -274,6 +276,24 @@ int is_assignment_stmt(t_list** tok, p_tree** tree) {
         eq->sibling = expression;
 
         return status;
+    }
+
+    if (match_crement_type(curr->token_type)) {
+        eq = create_tree();
+        status = is_crement(tok, &eq);
+        if (status != SUBTREE_OK) {
+            free_parse_tree(eq);
+            return PARSING_ERROR;
+        }
+        var1->sibling = eq;
+
+        expression = create_tree();
+        status = is_expression(tok, &expression);
+        if (status != SUBTREE_OK) {
+            free_parse_tree(expression);
+            return PARSING_ERROR;
+        }
+        eq->sibling = expression;
     }
     
     if (curr->token_type == COMMA) {
@@ -1090,51 +1110,6 @@ int is_for_loop(t_list** tok, p_tree** tree){
     return status;
 }
 
-int is_block(t_list** tok, p_tree** tree, int terminator){
-    int status;
-    t_list *curr;
-    
-    if (( *tree = create_tree_entry("BLOCK_CON", OUTPUT_CON, 0) ) == NULL ) {
-        printf("MEMORY ERR: block container not created.\n");
-        return MEMORY_ERROR;
-    }
-
-    printf("Went through block\n");
-
-    curr = *tok;
-
-    while (curr->token_type != terminator){
-        p_tree *line, *end_line;
-
-        line = create_tree();
-
-        status = is_line(tok, &line);
-        if (status != SUBTREE_OK) {
-            free_parse_tree(line);
-            return status;
-        }
-
-        (*tree)->child = line;
-
-        printf("Went through line\n");
-
-        end_line = create_tree();
-        status = is_endline(tok, &end_line);
-        if (status != SUBTREE_OK) {
-            free_parse_tree(end_line);
-            return status;
-        }
-        line->sibling = end_line;
-
-        printf("Went through end_line\n");
-
-        curr = *tok;
-    }
-
-    return status;
-}
-
-
 // Check which type of line should we check the grammar.
 int is_line(t_list** tok, p_tree** line) {
     
@@ -1207,6 +1182,49 @@ int is_line(t_list** tok, p_tree** line) {
     return status;
 }
 
+int is_block(t_list** tok, p_tree** tree, int terminator){
+    int status;
+    t_list *curr;
+    
+    if (( *tree = create_tree_entry("BLOCK_CON", OUTPUT_CON, 0) ) == NULL ) {
+        printf("MEMORY ERR: block container not created.\n");
+        return MEMORY_ERROR;
+    }
+
+    printf("Went through block\n");
+
+    curr = *tok;
+
+    while (curr->token_type != terminator){
+        p_tree *line, *end_line;
+
+        line = create_tree();
+
+        status = is_line(tok, &line);
+        if (status != SUBTREE_OK) {
+            free_parse_tree(line);
+            return status;
+        }
+
+        (*tree)->child = line;
+
+        printf("Went through line\n");
+
+        end_line = create_tree();
+        status = is_endline(tok, &end_line);
+        if (status != SUBTREE_OK) {
+            free_parse_tree(end_line);
+            return status;
+        }
+        line->sibling = end_line;
+
+        printf("Went through end_line\n");
+
+        curr = *tok;
+    }
+
+    return status;
+}
 
 int is_program(t_list** head, p_tree** tree) {
     t_list* tok, *temp_list;

@@ -1,5 +1,2 @@
-BOOL flag = TRUE
-
-FOR count TO 100 BY 1
-    PRINT(count)
-ENDLOOP
+BOOL flag = 32 + 3 * 45 - 
+PRINT (flag)
