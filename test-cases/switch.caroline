@@ -1,0 +1,10 @@
+INT x = 3
+
+SWITCH (x)
+    CASE 1 
+        PRINT("hello")
+    CASE 2
+        PRINT("HI")
+    DEFAULT
+        PRINT("GOODBYE")
+ENDSWITCH
