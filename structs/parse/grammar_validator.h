@@ -527,7 +527,7 @@ int is_if_stmt(t_list** tok, p_tree** tree){
     printf("Went through endline\n");
     
     body = create_tree();
-    status = is_block(tok, &body, ENDLOOP);
+    status = is_block(tok, &body, ENDIF);
     if (status != SUBTREE_OK) {
         free_parse_tree(body);
         return status;
@@ -605,7 +605,7 @@ int is_elseif_stmt(t_list** tok, p_tree** tree) {
     printf("Went through endline\n");
     
     body = create_tree();
-    status = is_block(tok, &body, ENDLOOP);
+    status = is_block(tok, &body, ENDIF);
     if (status != SUBTREE_OK) {
         free_parse_tree(body);
         return status;
@@ -645,7 +645,7 @@ int is_else_stmt(t_list** tok, p_tree** tree) {
     printf("Went through endline\n");
     
     body = create_tree();
-    status = is_block(tok, &body, ENDLOOP);
+    status = is_block(tok, &body, ENDIF);
     if (status != SUBTREE_OK) {
         free_parse_tree(body);
         return status;
@@ -663,6 +663,176 @@ int is_else_stmt(t_list** tok, p_tree** tree) {
     body->sibling = endif;
 
     printf("Went through endif\n");
+}
+
+int is_switch_stmt(t_list** tok, p_tree** tree) {
+    p_tree *switch_kywrd, *open_par, *close_par, *identifier, *endline, *body, *endswitch;
+    int status;
+
+    if (( *tree = create_tree_entry("SWITCH_CON", OUTPUT_CON, 0) ) == NULL) {
+        printf("MEMORY ERR: switch statement container not created.\n");
+        return MEMORY_ERROR;
+    }
+
+    switch_kywrd = create_tree();
+    status = is_switch(tok, &switch_kywrd);
+    if (status != SUBTREE_OK) {
+        free_parse_tree(switch_kywrd);
+        return status;
+    }
+    (*tree)->child = switch_kywrd;
+
+    printf("Went through SWITCH\n");
+
+    open_par = create_tree();
+    status = is_open_par(tok, &open_par);
+    if (status != SUBTREE_OK) {
+        free_parse_tree(open_par);
+        return status;
+    }
+    switch_kywrd->sibling = open_par;
+
+    printf("Went through OPEN_PAR\n");
+
+    identifier = create_tree();
+    status = is_identifier(tok, &identifier);
+    if (status != SUBTREE_OK) {
+        free_parse_tree(identifier);
+        return status;
+    }
+    open_par->sibling = identifier;
+
+    printf("Went through IDENTIFIER\n");
+
+    close_par = create_tree();
+    status = is_close_par(tok, &close_par);
+    if (status != SUBTREE_OK) {
+        free_parse_tree(close_par);
+        return status;
+    }
+    identifier->sibling = close_par;
+
+    printf("Went through CLOSE_PAR\n");
+
+    endline = create_tree();
+    status = is_endline(tok, &endline);
+    if (status != SUBTREE_OK) {
+        free_parse_tree(endline);
+        return status;
+    }
+    close_par->sibling = endline;
+
+    printf("Went through ENDLINE\n");
+
+    body = create_tree();
+    status = is_block(tok, &body, ENDSWITCH);
+    if (status != SUBTREE_OK) {
+        free_parse_tree(body);
+        return status;
+    }
+    endline->sibling = body;
+
+    printf("Went through BODY\n");
+}
+
+int is_case_stmt(t_list** tok, p_tree** tree) {
+    p_tree *case_kywrd, *int_kywrd, *endline, *body;
+    int status;
+
+    if (( *tree = create_tree_entry("CASE_CON", OUTPUT_CON, 0) ) == NULL) {
+        printf("MEMORY ERR: case container not create.\n");
+        return MEMORY_ERROR;
+    }
+
+    case_kywrd = create_tree();
+    status = is_case(tok, &case_kywrd);
+    if (status != SUBTREE_OK) {
+        free_parse_tree(case_kywrd);
+        return status;
+    }
+    (*tree)->child = case_kywrd;
+
+    printf("Went through CASE\n");
+
+    int_kywrd = create_tree();
+    status = is_int_const(tok, &int_kywrd);
+    if (status != SUBTREE_OK) {
+        free_parse_tree(int_kywrd);
+        return status;
+    }
+    case_kywrd->sibling = int_kywrd;
+
+    printf("Went through INTEGER\n");
+
+    endline = create_tree();
+    status = is_endline(tok, &endline);
+    if (status != SUBTREE_OK) {
+        free_parse_tree(endline);
+        return status;
+    }
+    int_kywrd->sibling = endline;
+
+    printf("Went through ENDLINE\n");
+
+    body = create_tree();
+    status = is_block(tok, &body, ENDSWITCH);
+    if (status != SUBTREE_OK) {
+        free_parse_tree(body);
+        return status;
+    }
+    endline->sibling = body;
+
+    printf("Went through BODY\n");
+}
+
+int is_default_stmt(t_list** tok, p_tree** tree) {
+    p_tree *default_kywrd, *endline, *body, *endswitch;
+    int status;
+
+    if (( *tree = create_tree_entry("DEFAULT_CON", OUTPUT_CON, 0) ) == NULL ) {
+        printf("MEMORY ERR: default container not created.\n");
+        return MEMORY_ERROR;
+    }
+
+    default_kywrd = create_tree();
+    status = is_default(tok, &default_kywrd);
+    if (status != SUBTREE_OK) {
+        free_parse_tree(default_kywrd);
+        return status;
+    }
+    (*tree)->child = default_kywrd;
+
+    printf("Went through DEFAULT\n");
+
+    endline = create_tree();
+    status = is_endline(tok, &endline);
+    if (status != SUBTREE_OK) {
+        free_parse_tree(endline);
+        return status;
+    }
+    default_kywrd->sibling = endline;
+
+    printf("Went through ENDLINE\n");
+
+    body = create_tree();
+    status = is_block(tok, &body, ENDSWITCH);
+    if (status != SUBTREE_OK) {
+        free_parse_tree(body);
+        return status;
+    }
+    endline->sibling = body;
+
+    printf("Went through BODY\n");
+
+    endswitch = create_tree();
+    status = is_endswitch(tok, &endswitch);
+    if (status != SUBTREE_OK) {
+        free_parse_tree(endswitch);
+        return status;
+    }
+    body->sibling = endswitch;
+
+    printf("Went through ENDSWITCH\n");
 }
 
 int is_while_loop(t_list** tok, p_tree** tree){
@@ -1011,6 +1181,15 @@ int is_line(t_list** tok, p_tree** line) {
     }
     else if (curr->token_type == ELSE) {
         status = is_else_stmt(tok, &subtree);
+    }
+    else if (curr->token_type == SWITCH) {
+        status = is_switch_stmt(tok, &subtree);
+    }
+    else if (curr->token_type == CASE) {
+        status = is_case_stmt(tok, &subtree);
+    }
+    else if (curr->token_type == DEFAULT) {
+        status = is_default_stmt(tok, &subtree);
     }
     /* else if (curr->token_type == IF || 
     curr->token_type == SWITCH) {
