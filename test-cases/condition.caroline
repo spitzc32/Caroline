@@ -1,0 +1,8 @@
+IF (1 > 2) THEN
+    PRINT("1 is equal to 1")
+ELSEIF (2 > 1) THEN
+    PRINT("1 is not greater than 2")
+ELSE
+    PRINT("BRUH")
+ENDIF
+
