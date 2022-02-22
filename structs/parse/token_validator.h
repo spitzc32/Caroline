@@ -89,6 +89,11 @@ int tok_validator (t_list** tok, p_tree** tree, int type, char* lexeme) {
     
     // Condition checking syntax rules set to token
     printf("Sa Validator: %d, %d\n", current->token_type, type);
+
+    if (current->token_type == INVALID) {
+        printf("PARSER ERROR: In line %d, %s\n", current->line, current->message);
+        return PARSING_ERROR;
+    }
     if (current->token_type != type) {
         printf("PARSER ERROR: In line %d. Expecting <%s>, Found <%s>\n", current->line, type2char(type), type2char(current->token_type));
         return PARSING_ERROR;

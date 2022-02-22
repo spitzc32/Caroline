@@ -1,2 +1,4 @@
-BOOL flag = 32 + 3 * 45 - 
+BOOL flag = 32 + 3 * 45
 PRINT (flag)
+
+FOR count TO (1 - )
