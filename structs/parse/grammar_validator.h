@@ -1126,7 +1126,11 @@ int is_line(t_list** tok, p_tree** line) {
     
     curr = *tok;
 
-    if(is_var_binding(curr->token_type, curr->successor->token_type) ||
+    if (curr->token_type == ENDLINE){
+        status = is_endline(tok, &subtree);
+    }
+
+    else if(is_var_binding(curr->token_type, curr->successor->token_type) ||
     curr-> token_type == IDENTIFIER) {
         status = is_assignment_stmt(tok, &subtree);
     } else if(curr->token_type == INPUT) {
@@ -1136,9 +1140,10 @@ int is_line(t_list** tok, p_tree** line) {
     } else if (curr->token_type == COMMENT || curr->token_type == ENDCOMMENT) {
         *tok = curr->successor;
         status = SUBTREE_OK;
-    } else if (curr->token_type == ENDLINE) {
-        status = is_endline(tok, &subtree);
-    }
+    } 
+    // else if (curr->token_type == ENDLINE) {
+    //     status = is_endline(tok, &subtree);
+    // }
     else if (curr->token_type == FOR){
         status = is_for_loop(tok, &subtree);
     }
@@ -1251,7 +1256,6 @@ int is_program(t_list** head, p_tree** tree) {
         
         child = 1; // true - the first line is always a child of Program
         // A program is a (possibly empty) sequence of 'line' 'end<token>'
-
         while ((temp_list) != NULL) {
             status = is_line(&temp_list, &line);
             if (child) {
@@ -1260,7 +1264,6 @@ int is_program(t_list** head, p_tree** tree) {
             } else {
                 current->sibling = line;
             }
-
 
             if (status == MEMORY_ERROR) {
                 printf("Program Out of Memory.\n");
