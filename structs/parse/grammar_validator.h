@@ -997,8 +997,10 @@ int is_for_loop(t_list** tok, p_tree** tree){
 
     body = create_tree();
     status = is_block(tok, &body, ENDLOOP);
+
     if (status != SUBTREE_OK) {
         free_parse_tree(body);
+        printf("%d\n", status);
         return status;
     }
     end_line->sibling = body;
@@ -1034,9 +1036,12 @@ int is_line(t_list** tok, p_tree** line) {
     if (curr->token_type == ENDLINE){
         status = is_endline(tok, &subtree);
     }
-
+    else if(curr->token_type == IDENTIFIER && (curr->successor == NULL || curr->successor->token_type != ASSIGN)){
+        printf("SYNTAX ERROR: No grammar match rule.");
+        status = PARSING_ERROR;
+    }
     else if(is_var_binding(curr->token_type, curr->successor->token_type) ||
-    curr-> token_type == IDENTIFIER) {
+    (curr-> token_type == IDENTIFIER)) {
         status = is_assignment_stmt(tok, &subtree);
     } else if(curr->token_type == INPUT) {
         status = is_input_stmt(tok, &subtree);
@@ -1106,24 +1111,43 @@ int is_block(t_list** tok, p_tree** tree, int terminator){
     while (curr->token_type != terminator){
         p_tree *line, *end_line;
 
+        // printf("LINE\n");
         line = create_tree();
 
         status = is_line(tok, &line);
+        // printf("STATUS: %d\n", status);
+
         if (status != SUBTREE_OK) {
+            if ((*tok)->successor == NULL){
+                char *terminator_str = "";
+                switch (terminator)
+                {
+                    case ENDLOOP:
+                        terminator_str = "ENDLOOP";
+                        break;
+                }
+                printf(" Expected %s.", terminator_str);
+            }
             free_parse_tree(line);
+            
             return status;
         }
 
         (*tree)->child = line;
 
+
         end_line = create_tree();
+        if((*tok) == NULL){
+            status = is_endline(tok, &end_line);
+            break;
+        }
+
         status = is_endline(tok, &end_line);
         if (status != SUBTREE_OK) {
             free_parse_tree(end_line);
             return status;
         }
         line->sibling = end_line;
-
         curr = *tok;
     }
 
