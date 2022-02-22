@@ -1125,6 +1125,12 @@ int is_block(t_list** tok, p_tree** tree, int terminator){
                     case ENDLOOP:
                         terminator_str = "ENDLOOP";
                         break;
+                    case ENDIF:
+                        terminator_str = "ENDIF";
+                        break;
+                    case ENDSWITCH:
+                        terminator_str = "ENDSWITCH";
+                        break;
                 }
                 printf(" Expected %s.", terminator_str);
             }
