@@ -47,8 +47,10 @@ const char* type2char (enum TokenType t) {
         case MODULO: return "%";
         case LS_THAN: return "<";
         case GR_THAN: return ">";
-        case DECREMENT: return "--";
-        case INCREMENT: return "++";
+        case MINUSCREMENT: return "-=";
+        case PLUSCREMENT: return "+=";
+        case DIVCREMENT: return "/=";
+        case MULTICREMENT: return "*=";
         case LS_THAN_EQ: return "<=";
         case GR_THAN_EQ: return ">=";
         case EQ: return "==";

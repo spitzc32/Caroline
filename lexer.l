@@ -102,8 +102,10 @@ insert(&symbol_table,yytext,"STR_CONSTANT",STR_CONSTANT,yylineno);
 \n                                {insert(&symbol_table,yytext,"ENDLINE",ENDLINE ,yylineno); }
 
   /* Operators Dictionary */
-"--"                              {insert(&symbol_table,yytext,"DECREMENT",DECREMENT,yylineno);}
-"++"                              {insert(&symbol_table,yytext,"INCREMENT",INCREMENT,yylineno);}
+"-="                              {insert(&symbol_table,yytext,"DECREMENT",MINUSCREMENT,yylineno);}
+"+="                              {insert(&symbol_table,yytext,"INCREMENT",PLUSCREMENT,yylineno);}
+"*="                              {insert(&symbol_table,yytext,"INCREMENT",MULTICREMENT,yylineno);}
+"/="                              {insert(&symbol_table,yytext,"INCREMENT",DIVCREMENT,yylineno);}
 "<="                              {insert(&symbol_table,yytext,"LS_THAN_EQ",LS_THAN_EQ,yylineno);}
 ">="                              {insert(&symbol_table,yytext,"GR_THAN_EQ",GR_THAN_EQ,yylineno);}
 "=="                              {insert(&symbol_table,yytext,"EQ",EQ,yylineno);}
