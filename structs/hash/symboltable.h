@@ -19,6 +19,7 @@ struct token_list
 	int token_type;
 	char* token_name;
 	int line;
+	char * message;
 	struct token_list* successor;
 };
 
@@ -93,7 +94,7 @@ void display(t_list* table_ptr)
 }
 
 /* Insert an entry into a linked list. */
-void insert( t_list** table_ptr, char* lexeme, char*token_name, int token_type, int line)
+void insert( t_list** table_ptr, char* lexeme, char*token_name, int token_type, int line, char* message)
 {
 	t_list* newentry = NULL;
 
@@ -105,6 +106,11 @@ void insert( t_list** table_ptr, char* lexeme, char*token_name, int token_type, 
 		printf("Insert failed. New entry could not be created.");
 		exit(1);
 	}
+
+	if (message != NULL) {
+		newentry->message = message;
+	}
+
 
 	if (*table_ptr == NULL){
 		*table_ptr = newentry;
