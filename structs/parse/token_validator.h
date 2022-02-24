@@ -379,6 +379,8 @@ int is_logical_op (t_list** tok, p_tree** tree) {
     else if (type == LS_THAN_EQ)
         return is_ls_than_eq(tok, tree);
     else
+        printf("PARSING ERROR: In line %d, Expected object of type <Operator> found %s", 
+        (*tok)->line, type2char((*tok)->token_type));
         return PARSING_ERROR;
 }
 
@@ -398,6 +400,7 @@ int is_datatype (t_list** tok, p_tree** tree) {
     else if (type == BOOL)
         return is_bool(tok, tree);
     else
+        printf("PARSER ERROR: In line %d, Expected type of object <DATAYPE> found <%s>", (*tok)->line, type2char((*tok)->token_type));
         return PARSING_ERROR;
 }
 
@@ -619,9 +622,7 @@ int is_quoted_string(t_list** tok, p_tree** tree) {
     }
 
     while ((*tok)->token_type == COMMA) {
-        if ((comma = create_tree()) == NULL)
-            return MEMORY_ERROR;
-    
+        comma = create_tree();
         status = is_comma(tok, &comma);
         if (status != SUBTREE_OK) {
             free_parse_tree(comma);
