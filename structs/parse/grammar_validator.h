@@ -491,7 +491,7 @@ int is_counter(t_list** tok, p_tree** tree){
 }
 
 int is_if_stmt(t_list** tok, p_tree** tree){
-    p_tree *if_kywrd, *expression, *then, *endline, *body, *else_kywrd, *endif;
+    p_tree *if_kywrd, *expression, *then, *endline, *body, *endif;
     int status;
 
     if (( *tree = create_tree_entry("IF_CON", OUTPUT_CON, 0) ) == NULL ) {
@@ -541,21 +541,13 @@ int is_if_stmt(t_list** tok, p_tree** tree){
     }
     endline->sibling = body;
 
-    else_kywrd = create_tree();
-    status = is_else(tok, &else_kywrd);
-    if (status != SUBTREE_OK) {
-        free_parse_tree(else_kywrd);
-        return status;
-    }
-    body->sibling = else_kywrd;
-
     endif = create_tree();
     status = is_endif(tok, &endif);
     if (status != SUBTREE_OK) {
         free_parse_tree(endif);
         return status;
     }
-    else_kywrd->sibling = endif;
+    body->sibling = endif;
 }
 
 int is_elseif_stmt(t_list** tok, p_tree** tree) {
