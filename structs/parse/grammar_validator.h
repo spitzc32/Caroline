@@ -1111,8 +1111,13 @@ int is_block(t_list** tok, p_tree** tree, int terminator){
     while (curr->token_type != terminator){
         p_tree *line, *end_line;
 
+
         // printf("LINE\n");
         line = create_tree();
+
+        if ((*tok)->successor == NULL){
+            return status;
+        }
 
         status = is_line(tok, &line);
         // printf("STATUS: %d\n", status);
@@ -1139,14 +1144,18 @@ int is_block(t_list** tok, p_tree** tree, int terminator){
             return status;
         }
 
+
         (*tree)->child = line;
 
-
-        end_line = create_tree();
-        if((*tok) == NULL){
-            status = is_endline(tok, &end_line);
-            break;
+        if ((*tok)->successor == NULL){
+            return status;
         }
+        
+        end_line = create_tree();
+        // if((*tok) == NULL){
+        //     status = is_endline(tok, &end_line);
+        //     break;
+        // }
 
         status = is_endline(tok, &end_line);
         if (status != SUBTREE_OK) {
@@ -1155,6 +1164,9 @@ int is_block(t_list** tok, p_tree** tree, int terminator){
         }
         line->sibling = end_line;
         curr = *tok;
+   
+
+
     }
 
     return status;
